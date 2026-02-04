@@ -1,0 +1,80 @@
+{
+  "name": "@appgram/react",
+  "version": "0.1.0",
+  "description": "React library for integrating Appgram portal features with pre-built UI components and headless hooks",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./hooks": {
+      "import": "./dist/hooks/index.mjs",
+      "require": "./dist/hooks/index.js",
+      "types": "./dist/hooks/index.d.ts"
+    },
+    "./components": {
+      "import": "./dist/components/index.mjs",
+      "require": "./dist/components/index.js",
+      "types": "./dist/components/index.d.ts"
+    },
+    "./tailwind-preset": "./tailwind-preset.js"
+  },
+  "files": [
+    "dist",
+    "tailwind-preset.js"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist",
+    "demo": "npm run build && cd demo && npm install && npm run dev",
+    "demo:install": "cd demo && npm install",
+    "demo:dev": "cd demo && npm run dev",
+    "docs:json": "npx typedoc --json docs.json --entryPoints src/index.ts",
+    "docs:transform": "node transform-docs.js && cp react-sdk.json ../../public/docs/react-sdk/sdk.json",
+    "docs:build": "npm run docs:json && npm run docs:transform"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.400.0",
+    "react-markdown": "^9.0.0",
+    "remark-gfm": "^4.0.0",
+    "tailwind-merge": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typedoc": "^0.26.11",
+    "typescript": "^5.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appgram/react"
+  },
+  "keywords": [
+    "react",
+    "appgram",
+    "feedback",
+    "roadmap",
+    "feature-requests",
+    "changelog",
+    "support"
+  ],
+  "author": "Appgram",
+  "license": "MIT"
+}
