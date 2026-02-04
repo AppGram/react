@@ -7,19 +7,19 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
       "import": "./dist/hooks/index.mjs",
-      "require": "./dist/hooks/index.js",
-      "types": "./dist/hooks/index.d.ts"
+      "require": "./dist/hooks/index.js"
     },
     "./components": {
+      "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.mjs",
-      "require": "./dist/components/index.js",
-      "types": "./dist/components/index.d.ts"
+      "require": "./dist/components/index.js"
     },
     "./tailwind-preset": "./tailwind-preset.js"
   },
@@ -38,7 +38,7 @@
     "demo:install": "cd demo && npm install",
     "demo:dev": "cd demo && npm run dev",
     "docs:json": "npx typedoc --json docs.json --entryPoints src/index.ts",
-    "docs:transform": "node transform-docs.js && cp react-sdk.json ../../public/docs/react-sdk/sdk.json",
+    "docs:transform": "node transform-docs.js",
     "docs:build": "npm run docs:json && npm run docs:transform"
   },
   "peerDependencies": {
