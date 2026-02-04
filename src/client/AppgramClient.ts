@@ -568,6 +568,7 @@ export class AppgramClient {
     }
 
     if (data.user_name) payload.user_name = data.user_name
+    if (data.external_user_id) payload.external_user_id = data.external_user_id
     if (data.category) payload.category = data.category
     if (uploadedAttachments.length > 0) payload.attachments = uploadedAttachments
 

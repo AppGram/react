@@ -62,6 +62,7 @@ export interface SupportRequestInput {
   description: string
   user_email: string
   user_name?: string
+  external_user_id?: string
   category?: SupportRequestCategory
   attachments?: File[]
 }
