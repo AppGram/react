@@ -48,7 +48,9 @@ function getBrowserCharacteristics(): string {
 function generateFingerprint(): string {
   const characteristics = getBrowserCharacteristics()
   const timestamp = Date.now().toString(36)
-  const random = Math.random().toString(36).substring(2, 10)
+  const randomBytes = new Uint8Array(6)
+  crypto.getRandomValues(randomBytes)
+  const random = Array.from(randomBytes, b => b.toString(36)).join('').substring(0, 10)
   return `${simpleHash(characteristics)}-${timestamp}-${random}`
 }
 

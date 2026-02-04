@@ -196,6 +196,7 @@ function MediaCarousel({
                 <iframe
                   src={getEmbedUrl(currentMedia.url)}
                   className="w-full h-full"
+                  sandbox="allow-scripts allow-same-origin allow-presentation"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   title={currentMedia.title || 'Video'}

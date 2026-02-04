@@ -612,10 +612,48 @@ export class AppgramClient {
     token: string,
     content: string
   ): Promise<ApiResponse<{ id: string; content: string; created_at: string }>> {
-    return this.post<{ id: string; content: string; created_at: string }>(
-      `/portal/support-requests/${ticketId}/messages?token=${encodeURIComponent(token)}`,
-      { content }
-    )
+    const url = `/portal/support-requests/${ticketId}/messages`
+    const fullUrl = `${this.baseUrl}${url}`
+
+    try {
+      const response = await fetch(fullUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: {
+            code: String(response.status),
+            message: data.message || data.error || 'An error occurred',
+          },
+        }
+      }
+
+      if (data && typeof data === 'object' && 'success' in data) {
+        return data
+      }
+
+      return {
+        success: true,
+        data: data as { id: string; content: string; created_at: string },
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'NETWORK_ERROR',
+          message: error instanceof Error ? error.message : 'Network error',
+        },
+      }
+    }
   }
 
   // ============================================================================
