@@ -404,7 +404,6 @@ export function WishDetail({
                     placeholder="Your name (optional)"
                     value={authorName}
                     onChange={(e) => setAuthorName(e.target.value)}
-                    maxLength={100}
                     className="w-full h-10 px-4 text-sm border focus:outline-none focus:ring-2 transition-all"
                     style={{
                       borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
@@ -418,7 +417,6 @@ export function WishDetail({
                       placeholder="Write a comment..."
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
-                      maxLength={1000}
                       className="flex-1 min-h-[60px] px-4 py-3 text-sm border focus:outline-none focus:ring-2 resize-none transition-all"
                       style={{
                         borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',

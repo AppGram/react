@@ -10,6 +10,8 @@ export * from './release'
 export * from './help'
 export * from './support'
 export * from './customization'
+export * from './survey'
+export * from './form'
 
 /**
  * API Response wrapper

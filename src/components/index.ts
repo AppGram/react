@@ -72,3 +72,15 @@ export {
   type IncidentStatus,
   type IncidentImpact,
 } from './status'
+
+// Survey components
+export {
+  SurveyRenderer,
+  type SurveyRendererProps,
+} from './survey'
+
+// Contact form components
+export {
+  ContactFormRenderer,
+  type ContactFormRendererProps,
+} from './forms'

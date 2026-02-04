@@ -5,7 +5,6 @@
  */
 
 import React from 'react'
-import DOMPurify from 'dompurify'
 import { motion } from 'framer-motion'
 import { ArrowLeft, FileText, Clock, Calendar } from 'lucide-react'
 import { cn } from '../../utils/cn'
@@ -258,7 +257,7 @@ export function HelpArticleDetail({
           >
             <div
               className="article-content"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }}
+              dangerouslySetInnerHTML={{ __html: article.content }}
             />
           </div>
         </motion.div>

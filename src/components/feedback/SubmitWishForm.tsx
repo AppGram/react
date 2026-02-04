@@ -232,7 +232,6 @@ export function SubmitWishForm({
                       setFormData({ ...formData, title: e.target.value })
                     }
                     required
-                    maxLength={150}
                     className="w-full h-11 px-4 text-sm border focus:outline-none focus:ring-2 transition-all"
                     style={{
                       borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
@@ -277,7 +276,6 @@ export function SubmitWishForm({
                       setFormData({ ...formData, description: e.target.value })
                     }
                     required
-                    maxLength={500}
                     rows={5}
                     className="w-full px-4 py-3 text-sm border focus:outline-none focus:ring-2 resize-none transition-all"
                     style={{

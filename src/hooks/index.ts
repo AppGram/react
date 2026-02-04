@@ -27,3 +27,19 @@ export {
   type UseHelpArticleResult,
 } from './useHelpCenter'
 export { useSupport, type UseSupportOptions, type UseSupportResult } from './useSupport'
+export {
+  useSurvey,
+  useSurveySubmit,
+  type UseSurveyOptions,
+  type UseSurveyResult,
+  type UseSurveySubmitOptions,
+  type UseSurveySubmitResult,
+} from './useSurvey'
+export {
+  useContactForm,
+  useContactFormSubmit,
+  type UseContactFormOptions,
+  type UseContactFormResult,
+  type UseContactFormSubmitOptions,
+  type UseContactFormSubmitResult,
+} from './useContactForm'

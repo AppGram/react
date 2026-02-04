@@ -493,7 +493,6 @@ export function SupportForm({
                     placeholder="Your name"
                     value={formData.user_name}
                     onChange={handleChange}
-                    maxLength={100}
                     className="w-full h-10 px-4 text-sm border focus:outline-none focus:ring-2 transition-all"
                     style={{
                       backgroundColor: isDark ? 'var(--appgram-card)' : 'white',
@@ -566,7 +565,6 @@ export function SupportForm({
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  maxLength={200}
                   className="w-full h-10 px-4 text-sm border focus:outline-none focus:ring-2 transition-all"
                   style={{
                     backgroundColor: isDark ? 'var(--appgram-card)' : 'white',
@@ -588,7 +586,6 @@ export function SupportForm({
                   value={formData.description}
                   onChange={handleChange}
                   required
-                  maxLength={2000}
                   rows={5}
                   className="w-full px-4 py-3 text-sm border focus:outline-none focus:ring-2 resize-none transition-all"
                   style={{

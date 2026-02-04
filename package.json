@@ -1,6 +1,6 @@
 {
   "name": "@appgram/react",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "React library for integrating Appgram portal features with pre-built UI components and headless hooks",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

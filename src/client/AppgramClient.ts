@@ -21,6 +21,13 @@ import type {
   HelpArticle,
   SupportRequest,
   SupportRequestInput,
+  Survey,
+  SurveyNode,
+  SurveyResponse,
+  SurveySubmitInput,
+  ContactForm,
+  ContactFormSubmission,
+  ContactFormSubmitInput,
 } from '../types'
 
 export interface AppgramClientConfig {
@@ -612,48 +619,65 @@ export class AppgramClient {
     token: string,
     content: string
   ): Promise<ApiResponse<{ id: string; content: string; created_at: string }>> {
-    const url = `/portal/support-requests/${ticketId}/messages`
-    const fullUrl = `${this.baseUrl}${url}`
+    return this.post<{ id: string; content: string; created_at: string }>(
+      `/portal/support-requests/${ticketId}/messages?token=${encodeURIComponent(token)}`,
+      { content }
+    )
+  }
 
-    try {
-      const response = await fetch(fullUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ content }),
-      })
+  // ============================================================================
+  // Surveys
+  // ============================================================================
 
-      const data = await response.json()
+  /**
+   * Get a public survey by slug
+   */
+  async getPublicSurvey(slug: string): Promise<ApiResponse<Survey & { nodes: SurveyNode[] }>> {
+    return this.get<Survey & { nodes: SurveyNode[] }>(`/portal/surveys/${slug}`, {
+      project_id: this.projectId,
+    })
+  }
 
-      if (!response.ok) {
-        return {
-          success: false,
-          error: {
-            code: String(response.status),
-            message: data.message || data.error || 'An error occurred',
-          },
-        }
-      }
+  /**
+   * Submit a survey response
+   */
+  async submitSurveyResponse(
+    surveyId: string,
+    data: SurveySubmitInput
+  ): Promise<ApiResponse<SurveyResponse>> {
+    return this.post<SurveyResponse>(`/portal/surveys/${surveyId}/responses`, data)
+  }
 
-      if (data && typeof data === 'object' && 'success' in data) {
-        return data
-      }
+  /**
+   * Get survey customization settings
+   */
+  async getPublicSurveyCustomization(surveyId: string): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.get<Record<string, unknown>>(`/portal/surveys/customization/${surveyId}`)
+  }
 
-      return {
-        success: true,
-        data: data as { id: string; content: string; created_at: string },
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'NETWORK_ERROR',
-          message: error instanceof Error ? error.message : 'Network error',
-        },
-      }
-    }
+  // ============================================================================
+  // Contact Forms
+  // ============================================================================
+
+  /**
+   * Get a public contact form by ID
+   */
+  async getPublicForm(formId: string): Promise<ApiResponse<ContactForm>> {
+    return this.get<ContactForm>(`/api/v1/forms/${formId}`)
+  }
+
+  /**
+   * Submit a contact form
+   */
+  async submitContactForm(
+    projectId: string,
+    formId: string,
+    data: ContactFormSubmitInput
+  ): Promise<ApiResponse<ContactFormSubmission>> {
+    return this.post<ContactFormSubmission>(
+      `/api/v1/projects/${projectId}/contact-forms/${formId}/submit`,
+      data
+    )
   }
 
   // ============================================================================
