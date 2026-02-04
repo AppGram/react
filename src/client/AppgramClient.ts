@@ -28,6 +28,7 @@ import type {
   ContactForm,
   ContactFormSubmission,
   ContactFormSubmitInput,
+  StatusPageOverview,
 } from '../types'
 
 export interface AppgramClientConfig {
@@ -622,6 +623,19 @@ export class AppgramClient {
     return this.post<{ id: string; content: string; created_at: string }>(
       `/portal/support-requests/${ticketId}/messages?token=${encodeURIComponent(token)}`,
       { content }
+    )
+  }
+
+  // ============================================================================
+  // Status Pages
+  // ============================================================================
+
+  /**
+   * Get public status page overview (services, active updates, overall status)
+   */
+  async getPublicStatusOverview(slug = 'status'): Promise<ApiResponse<StatusPageOverview>> {
+    return this.get<StatusPageOverview>(
+      `/api/v1/status-pages/public/${this.projectId}/${slug}/overview`
     )
   }
 

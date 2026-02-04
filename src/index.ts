@@ -34,6 +34,7 @@ export {
   useSurveySubmit,
   useContactForm,
   useContactFormSubmit,
+  useStatus,
   type UseWishesOptions,
   type UseWishesResult,
   type UseWishOptions,
@@ -64,6 +65,8 @@ export {
   type UseContactFormResult,
   type UseContactFormSubmitOptions,
   type UseContactFormSubmitResult,
+  type UseStatusOptions,
+  type UseStatusResult,
 } from './hooks'
 
 // Components
@@ -184,6 +187,13 @@ export type {
   ContactFormFieldValidation,
   ContactFormSubmission,
   ContactFormSubmitInput,
+  // Status API types
+  StatusPage,
+  StatusUpdate as StatusUpdateApi,
+  StatusPageService,
+  StatusPageOverview,
+  StatusType,
+  StatusState,
   // Customization types
   CustomColors,
   CustomTypography,

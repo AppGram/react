@@ -27,6 +27,7 @@ export {
   type UseHelpArticleResult,
 } from './useHelpCenter'
 export { useSupport, type UseSupportOptions, type UseSupportResult } from './useSupport'
+export { useStatus, type UseStatusOptions, type UseStatusResult } from './useStatus'
 export {
   useSurvey,
   useSurveySubmit,
