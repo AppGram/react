@@ -19,6 +19,12 @@ export interface UseContactFormOptions {
    * @default true
    */
   enabled?: boolean
+
+  /**
+   * Whether to track form views for analytics
+   * @default true
+   */
+  trackView?: boolean
 }
 
 export interface UseContactFormResult {
@@ -29,11 +35,12 @@ export interface UseContactFormResult {
 }
 
 export function useContactForm(formId: string, options: UseContactFormOptions = {}): UseContactFormResult {
-  const { enabled = true } = options
+  const { enabled = true, trackView = true } = options
   const { client } = useAppgramContext()
   const [form, setForm] = useState<ContactForm | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const viewTrackedRef = useRef(false)
 
   const fetchForm = useCallback(async () => {
     if (!formId) return
@@ -45,6 +52,14 @@ export function useContactForm(formId: string, options: UseContactFormOptions = 
 
       if (response.success && response.data) {
         setForm(response.data)
+
+        // Track form view for analytics (fire-and-forget, only once per mount)
+        if (trackView && !viewTrackedRef.current) {
+          viewTrackedRef.current = true
+          client.trackContactFormView(formId).catch(() => {
+            // Silently ignore view tracking errors - it shouldn't affect UX
+          })
+        }
       } else {
         setError(getErrorMessage(response.error, 'Failed to fetch form'))
       }
@@ -53,7 +68,7 @@ export function useContactForm(formId: string, options: UseContactFormOptions = 
     } finally {
       setIsLoading(false)
     }
-  }, [client, formId])
+  }, [client, formId, trackView])
 
   useEffect(() => {
     if (enabled) {

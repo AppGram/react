@@ -11,8 +11,11 @@ import {
   SupportForm,
   StatusBoard,
   StatusIncidentDetail,
+  ContactFormRenderer,
+  Blog,
   useWishes,
   useVote,
+  useContactForm,
   type Wish,
   type StatusData,
   type StatusIncident,
@@ -27,7 +30,7 @@ const CONFIG = {
   // apiUrl: 'http://localhost:3001', // Uncomment for local API testing
 }
 
-type Tab = 'components' | 'hooks' | 'roadmap' | 'releases' | 'help' | 'support' | 'status'
+type Tab = 'components' | 'hooks' | 'roadmap' | 'releases' | 'help' | 'support' | 'status' | 'forms' | 'blog'
 
 // Theme mode icons
 const ThemeIcons = {
@@ -346,6 +349,94 @@ function SupportDemo() {
 }
 
 // ============================================================================
+// Demo: Contact Forms
+// ============================================================================
+
+// Demo form ID - replace with your own form ID for testing
+const DEMO_FORM_ID = 'your-form-id-here'
+
+function FormsDemo() {
+  // Example of using the hook directly for custom implementations
+  const { form, isLoading, error } = useContactForm(DEMO_FORM_ID, {
+    trackView: true, // Automatically tracks form view for analytics (default: true)
+  })
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h3 className="text-lg font-semibold mb-2">ContactFormRenderer Component</h3>
+        <p className="text-gray-600 mb-4">
+          Pre-built contact form component that auto-loads form config and handles submission.
+          Form views are automatically tracked for analytics.
+        </p>
+        <p className="text-sm text-amber-600 mb-6">
+          Note: Replace DEMO_FORM_ID in the code with your actual form ID to test.
+        </p>
+      </div>
+
+      {/* Using the pre-built component */}
+      <div className="max-w-lg">
+        <ContactFormRenderer
+          formId={DEMO_FORM_ID}
+          projectId={CONFIG.projectId}
+          title="Contact Us"
+          description="Have a question? Send us a message and we'll get back to you."
+          onSuccess={() => console.log('Form submitted successfully!')}
+          onError={(error) => console.error('Form error:', error)}
+        />
+      </div>
+
+      {/* Hook usage example */}
+      <div className="mt-8 p-4 rounded-lg" style={{ backgroundColor: 'var(--appgram-card)' }}>
+        <h4 className="font-medium mb-2">Hook Usage Example (useContactForm)</h4>
+        <p className="text-sm opacity-70 mb-3">
+          Use the <code className="px-1 py-0.5 rounded bg-gray-200 dark:bg-gray-700">useContactForm</code> hook
+          for custom form implementations while still getting automatic view tracking.
+        </p>
+        <pre className="text-xs p-3 rounded overflow-x-auto" style={{ backgroundColor: 'var(--appgram-background)' }}>
+{`const { form, isLoading, error } = useContactForm('form-id', {
+  trackView: true, // Tracks form view for analytics
+});
+
+// form: ContactForm | null
+// isLoading: boolean
+// error: string | null`}
+        </pre>
+        <div className="mt-3 text-sm">
+          <strong>Hook State:</strong>{' '}
+          {isLoading ? 'Loading...' : error ? `Error: ${error}` : form ? `Form loaded: ${form.name}` : 'No form'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// Demo: Blog
+// ============================================================================
+
+function BlogDemo() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Blog Component</h3>
+        <p className="text-gray-600 mb-4">
+          Complete blog with posts, categories, and article views.
+        </p>
+      </div>
+      <Blog
+        heading="Latest Updates"
+        description="News, tutorials, and insights from our team."
+        headingAlignment="center"
+        showFeatured
+        showCategories
+        postsPerPage={6}
+      />
+    </div>
+  )
+}
+
+// ============================================================================
 // Demo: Status Page
 // ============================================================================
 
@@ -493,6 +584,8 @@ export function App() {
     { id: 'help', label: 'Help' },
     { id: 'support', label: 'Support' },
     { id: 'status', label: 'Status' },
+    { id: 'forms', label: 'Forms' },
+    { id: 'blog', label: 'Blog' },
   ]
 
   const themeModes: ThemeMode[] = ['light', 'dark', 'system']
@@ -612,6 +705,8 @@ export function App() {
           {activeTab === 'help' && <HelpDemo />}
           {activeTab === 'support' && <SupportDemo />}
           {activeTab === 'status' && <StatusDemo />}
+          {activeTab === 'forms' && <FormsDemo />}
+          {activeTab === 'blog' && <BlogDemo />}
         </main>
 
         {/* Config Info */}

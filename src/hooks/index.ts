@@ -44,3 +44,17 @@ export {
   type UseContactFormSubmitOptions,
   type UseContactFormSubmitResult,
 } from './useContactForm'
+export {
+  useBlogPosts,
+  useBlogPost,
+  useBlogCategories,
+  useFeaturedPosts,
+  type UseBlogPostsOptions,
+  type UseBlogPostsResult,
+  type UseBlogPostOptions,
+  type UseBlogPostResult,
+  type UseBlogCategoriesOptions,
+  type UseBlogCategoriesResult,
+  type UseFeaturedPostsOptions,
+  type UseFeaturedPostsResult,
+} from './useBlog'

@@ -1,16 +1,42 @@
 /**
  * Markdown Component
  *
- * Renders markdown content with consistent styling using react-markdown.
+ * Renders markdown or HTML content with consistent styling.
+ * Automatically detects HTML content and renders it appropriately.
  */
 
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
+/**
+ * Decode HTML entities in a string
+ * Handles both named entities (&lt;, &gt;, etc.) and unicode escapes (\u0026lt;)
+ */
+function decodeHtmlEntities(content: string): string {
+  // First decode unicode escape sequences like \u0026lt; -> &lt;
+  let decoded = content.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => {
+    return String.fromCharCode(parseInt(hex, 16))
+  })
+
+  // Then decode HTML entities like &lt; -> <, &gt; -> >, &amp; -> &, etc.
+  const textarea = document.createElement('textarea')
+  textarea.innerHTML = decoded
+  return textarea.value
+}
+
+/**
+ * Check if content appears to be HTML (contains HTML tags)
+ */
+function isHtmlContent(content: string): boolean {
+  const decoded = decodeHtmlEntities(content)
+  // Check for common HTML patterns
+  return /<[a-z][\s\S]*>/i.test(decoded) && /<\/(?:p|div|span|h[1-6]|ul|ol|li|a|img|strong|em|br)>/i.test(decoded)
+}
+
 export interface MarkdownProps {
   /**
-   * Markdown content to render
+   * Markdown or HTML content to render
    */
   content: string
 
@@ -30,6 +56,24 @@ export function Markdown({
   accentColor = '#6366f1',
   className,
 }: MarkdownProps): React.ReactElement {
+  const decodedContent = decodeHtmlEntities(content)
+  
+  // If content is HTML, render it directly
+  if (isHtmlContent(decodedContent)) {
+    return (
+      <div 
+        className={`prose prose-slate max-w-none ${className || ''}`}
+        dangerouslySetInnerHTML={{ __html: decodedContent }}
+        style={{
+          ['--tw-prose-body' as string]: 'rgba(0, 0, 0, 0.8)',
+          ['--tw-prose-headings' as string]: '#1f2937',
+          ['tw-prose-links' as string]: accentColor,
+        }}
+      />
+    )
+  }
+
+  // Otherwise, render as Markdown
   return (
     <div className={className}>
       <ReactMarkdown
@@ -204,7 +248,7 @@ export function Markdown({
           em: ({ children }) => <em>{children}</em>,
         }}
       >
-        {content}
+        {decodedContent}
       </ReactMarkdown>
     </div>
   )

@@ -13,6 +13,7 @@ export * from './customization'
 export * from './survey'
 export * from './form'
 export * from './status'
+export * from './blog'
 
 /**
  * API Response wrapper

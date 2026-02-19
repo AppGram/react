@@ -29,6 +29,10 @@ import type {
   ContactFormSubmission,
   ContactFormSubmitInput,
   StatusPageOverview,
+  BlogPost,
+  BlogPostsResponse,
+  BlogCategory,
+  BlogFilters,
 } from '../types'
 
 export interface AppgramClientConfig {
@@ -682,6 +686,63 @@ export class AppgramClient {
   }
 
   /**
+   * Track a contact form view (call when form is displayed)
+   */
+  async trackContactFormView(formId: string): Promise<ApiResponse<{ tracked: boolean }>> {
+    const endpoint = `/projects/${this.projectId}/contact-forms/${formId}/view`
+    const url = `${this.baseUrl}${endpoint}`
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      // Handle empty or non-JSON responses gracefully
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        // If response is OK but not JSON, assume success
+        if (response.ok) {
+          return { success: true, data: { tracked: true } }
+        }
+        return {
+          success: false,
+          error: { code: 'INVALID_RESPONSE', message: 'Invalid response from server' },
+        }
+      }
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: {
+            code: String(response.status),
+            message: data.message || data.error || 'An error occurred',
+          },
+        }
+      }
+
+      // Handle both wrapped and unwrapped responses
+      if (data && typeof data === 'object' && 'success' in data) {
+        return data
+      }
+
+      return { success: true, data: { tracked: true } }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'NETWORK_ERROR',
+          message: error instanceof Error ? error.message : 'Network error',
+        },
+      }
+    }
+  }
+
+  /**
    * Submit a contact form
    */
   async submitContactForm(
@@ -717,5 +778,221 @@ export class AppgramClient {
     if (this.projectSlug) params.project_slug = this.projectSlug
 
     return this.get('/portal/page-data', params)
+  }
+
+  // ============================================================================
+  // Blog / Resources
+  // ============================================================================
+
+  /**
+   * Get public blog posts with optional filters
+   */
+  async getBlogPosts(filters?: BlogFilters): Promise<ApiResponse<BlogPostsResponse>> {
+    const params: Record<string, string> = {
+      project_id: this.projectId,
+    }
+
+    if (filters?.category_slug) params.category_slug = filters.category_slug
+    if (filters?.tag) params.tag = filters.tag
+    if (filters?.search) params.search = filters.search
+    if (filters?.is_featured !== undefined) params.is_featured = String(filters.is_featured)
+    if (filters?.page) params.page = String(filters.page)
+    if (filters?.per_page) params.per_page = String(filters.per_page)
+
+    // The API returns { success, data: [...posts], total, page, per_page, total_pages }
+    // We need to transform this to { success, data: { data: [...posts], total, ... } }
+    const rawResponse = await this.requestRaw<{
+      success: boolean
+      data: BlogPost[]
+      total: number
+      page: number
+      per_page: number
+      total_pages: number
+      error?: { code: string; message: string }
+    }>('/portal/blog/posts', params)
+
+    if (!rawResponse.success) {
+      return {
+        success: false,
+        error: rawResponse.error,
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        data: rawResponse.data || [],
+        total: rawResponse.total || 0,
+        page: rawResponse.page || 1,
+        per_page: rawResponse.per_page || 10,
+        total_pages: rawResponse.total_pages || 1,
+      },
+    }
+  }
+
+  /**
+   * Get a single blog post by slug
+   */
+  async getBlogPost(slug: string): Promise<ApiResponse<BlogPost>> {
+    return this.get<BlogPost>(`/portal/blog/posts/${slug}`, {
+      project_id: this.projectId,
+    })
+  }
+
+  /**
+   * Get featured blog posts
+   */
+  async getFeaturedBlogPosts(): Promise<ApiResponse<BlogPost[]>> {
+    return this.get<BlogPost[]>('/portal/blog/featured', {
+      project_id: this.projectId,
+    })
+  }
+
+  /**
+   * Get blog categories
+   */
+  async getBlogCategories(): Promise<ApiResponse<BlogCategory[]>> {
+    return this.get<BlogCategory[]>('/portal/blog/categories', {
+      project_id: this.projectId,
+    })
+  }
+
+  /**
+   * Get blog posts by category slug
+   */
+  async getBlogPostsByCategory(
+    categorySlug: string,
+    options?: { page?: number; per_page?: number }
+  ): Promise<ApiResponse<BlogPostsResponse>> {
+    const params: Record<string, string> = {
+      project_id: this.projectId,
+    }
+    if (options?.page) params.page = String(options.page)
+    if (options?.per_page) params.per_page = String(options.per_page)
+
+    // The API returns { success, data: [...posts], total, page, per_page, total_pages }
+    const rawResponse = await this.requestRaw<{
+      success: boolean
+      data: BlogPost[]
+      total: number
+      page: number
+      per_page: number
+      total_pages: number
+      error?: { code: string; message: string }
+    }>(`/portal/blog/categories/${categorySlug}`, params)
+
+    if (!rawResponse.success) {
+      return {
+        success: false,
+        error: rawResponse.error,
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        data: rawResponse.data || [],
+        total: rawResponse.total || 0,
+        page: rawResponse.page || 1,
+        per_page: rawResponse.per_page || 10,
+        total_pages: rawResponse.total_pages || 1,
+      },
+    }
+  }
+
+  /**
+   * Get blog posts by tag
+   */
+  async getBlogPostsByTag(
+    tag: string,
+    options?: { page?: number; per_page?: number }
+  ): Promise<ApiResponse<BlogPostsResponse>> {
+    const params: Record<string, string> = {
+      project_id: this.projectId,
+    }
+    if (options?.page) params.page = String(options.page)
+    if (options?.per_page) params.per_page = String(options.per_page)
+
+    // The API returns { success, data: [...posts], total, page, per_page, total_pages }
+    const rawResponse = await this.requestRaw<{
+      success: boolean
+      data: BlogPost[]
+      total: number
+      page: number
+      per_page: number
+      total_pages: number
+      error?: { code: string; message: string }
+    }>(`/portal/blog/tags/${tag}`, params)
+
+    if (!rawResponse.success) {
+      return {
+        success: false,
+        error: rawResponse.error,
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        data: rawResponse.data || [],
+        total: rawResponse.total || 0,
+        page: rawResponse.page || 1,
+        per_page: rawResponse.per_page || 10,
+        total_pages: rawResponse.total_pages || 1,
+      },
+    }
+  }
+
+  /**
+   * Search blog posts
+   */
+  async searchBlogPosts(
+    query: string,
+    options?: { page?: number; per_page?: number }
+  ): Promise<ApiResponse<BlogPostsResponse>> {
+    const params: Record<string, string> = {
+      project_id: this.projectId,
+      q: query,
+    }
+    if (options?.page) params.page = String(options.page)
+    if (options?.per_page) params.per_page = String(options.per_page)
+
+    // The API returns { success, data: [...posts], total, page, per_page, total_pages }
+    const rawResponse = await this.requestRaw<{
+      success: boolean
+      data: BlogPost[]
+      total: number
+      page: number
+      per_page: number
+      total_pages: number
+      error?: { code: string; message: string }
+    }>('/portal/blog/search', params)
+
+    if (!rawResponse.success) {
+      return {
+        success: false,
+        error: rawResponse.error,
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        data: rawResponse.data || [],
+        total: rawResponse.total || 0,
+        page: rawResponse.page || 1,
+        per_page: rawResponse.per_page || 10,
+        total_pages: rawResponse.total_pages || 1,
+      },
+    }
+  }
+
+  /**
+   * Get related blog posts for a given post
+   */
+  async getRelatedBlogPosts(slug: string): Promise<ApiResponse<BlogPost[]>> {
+    return this.get<BlogPost[]>(`/portal/blog/posts/${slug}/related`, {
+      project_id: this.projectId,
+    })
   }
 }
