@@ -267,7 +267,6 @@ export function StatusBoard({
 
   const primaryColor = theme.colors?.primary || '#0EA5E9'
   const borderRadius = theme.borderRadius || 16
-  const isDark = (theme as { isDark?: boolean }).isDark ?? false
 
   const overallConfig = overallStatusConfig[status.overall_status]
   const OverallIcon = overallConfig.icon

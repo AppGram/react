@@ -7,7 +7,6 @@
 import React from 'react'
 import { cn } from '../../utils/cn'
 import { useVote, type UseVoteOptions } from '../../hooks/useVote'
-import { useAppgramContext } from '../../provider/context'
 
 export interface VoteButtonProps extends Omit<UseVoteOptions, 'onVoteChange'> {
   /**
@@ -65,7 +64,6 @@ export function VoteButton({
   className,
   renderContent,
 }: VoteButtonProps): React.ReactElement {
-  const { theme } = useAppgramContext()
   const { hasVoted, voteCount, isLoading, toggle } = useVote({
     wishId,
     initialVoteCount,
@@ -73,9 +71,6 @@ export function VoteButton({
     voterEmail,
     onVoteChange,
   })
-
-  // Use theme's currentColors which automatically resolves based on dark/light mode
-  const isDark = (theme as { isDark?: boolean }).isDark ?? false
 
   // Default content
   const defaultContent = (

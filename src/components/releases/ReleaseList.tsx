@@ -92,14 +92,12 @@ function ModernReleaseCard({
   borderRadius,
   onClick,
   featured = false,
-  isDark = false,
 }: {
   release: Release
   primaryColor: string
   borderRadius: number
   onClick?: () => void
   featured?: boolean
-  isDark?: boolean
 }) {
   // Group items by type
   const itemsByType = (release.items || []).reduce((acc, item) => {
@@ -280,7 +278,6 @@ export function ReleaseList({
 
   const primaryColor = theme.colors?.primary || '#0EA5E9'
   const borderRadius = theme.borderRadius || 16
-  const isDark = (theme as { isDark?: boolean }).isDark ?? false
 
   // Get featured (latest) release and remaining releases
   const publishedReleases = releases.filter((r) => r.is_published !== false)
@@ -368,7 +365,6 @@ export function ReleaseList({
                   borderRadius={borderRadius}
                   onClick={onReleaseClick ? () => onReleaseClick(featuredRelease) : undefined}
                   featured
-                  isDark={isDark}
                 />
               )}
             </motion.div>
@@ -402,7 +398,6 @@ export function ReleaseList({
                           primaryColor={primaryColor}
                           borderRadius={borderRadius}
                           onClick={onReleaseClick ? () => onReleaseClick(release) : undefined}
-                          isDark={isDark}
                         />
                       )}
                     </motion.div>

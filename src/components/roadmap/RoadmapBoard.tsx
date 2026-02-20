@@ -127,7 +127,6 @@ function ModernCard({
   showVoteCounts,
   showComments,
   onClick,
-  isDark,
 }: {
   item: RoadmapItem
   primaryColor: string
@@ -135,7 +134,6 @@ function ModernCard({
   showVoteCounts: boolean
   showComments: boolean
   onClick?: () => void
-  isDark: boolean
 }) {
   const wish = item.wish
 
@@ -299,7 +297,6 @@ function ModernColumn({
                 showVoteCounts={showVoteCounts}
                 showComments={showComments}
                 onClick={onItemClick ? () => onItemClick(item) : undefined}
-                isDark={isDark}
               />
             </motion.div>
           ))}
