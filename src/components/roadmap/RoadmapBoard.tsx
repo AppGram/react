@@ -142,18 +142,20 @@ function ModernCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ x: 4 }}
+      transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
       className="cursor-pointer group"
       onClick={onClick}
     >
       <div
-        className="p-4 backdrop-blur-sm border transition-all"
+        className="p-4 border"
         style={{
-          backgroundColor: isDark ? 'var(--appgram-card)' : 'rgba(255, 255, 255, 0.5)',
-          borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+          backgroundColor: 'var(--appgram-card)',
+          borderColor: 'var(--appgram-border)',
           borderRadius: `${Math.min(borderRadius, 12)}px`,
+          transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
         }}
       >
         <div className="flex items-start gap-3">
@@ -184,7 +186,7 @@ function ModernCard({
             {(item.description || wish?.description) && (
               <p
                 className="text-sm line-clamp-2 mb-2"
-                style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+                style={{ color: 'var(--appgram-muted-foreground)' }}
               >
                 {item.description || wish?.description}
               </p>
@@ -192,7 +194,7 @@ function ModernCard({
 
             {/* Stats row */}
             {wish && (showVoteCounts || showComments) && (
-              <div className="flex items-center gap-3 text-xs" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--appgram-muted-foreground)' }}>
                 {showVoteCounts && (
                   <div className="flex items-center gap-1" style={{ color: primaryColor }}>
                     <ChevronUp className="w-3.5 h-3.5" />
@@ -211,8 +213,11 @@ function ModernCard({
 
           {/* Right: Chevron */}
           <ChevronRight
-            className="w-4 h-4 mt-1 opacity-40 group-hover:opacity-100 shrink-0 transition-opacity"
-            style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+            className="w-4 h-4 mt-1 opacity-40 group-hover:opacity-100 shrink-0"
+            style={{
+              color: 'var(--appgram-muted-foreground)',
+              transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+            }}
           />
         </div>
       </div>
@@ -241,25 +246,22 @@ function ModernColumn({
   return (
     <motion.div
       className="flex-shrink-0 w-80"
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
     >
-      {/* Column Header - Glassmorphism */}
+      {/* Column Header - Solid background */}
       <div
         className="flex items-center gap-3 px-4 py-3 mb-3"
         style={{
-          backgroundColor: `${column.color}10`,
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          backgroundColor: isDark ? `${column.color}15` : `${column.color}08`,
           borderRadius: `${borderRadius}px`,
-          border: `1px solid ${column.color}20`,
+          border: `1px solid ${isDark ? `${column.color}30` : `${column.color}20`}`,
         }}
       >
-        <motion.div
+        <div
           className="w-3 h-3 rounded-full"
           style={{ backgroundColor: column.color }}
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         />
         <h3
           className="font-semibold flex-1"
@@ -285,10 +287,10 @@ function ModernColumn({
           {(column.items || []).map((item, index) => (
             <motion.div
               key={item.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ delay: index * 0.05 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: index * 0.03, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             >
               <ModernCard
                 item={item}
@@ -308,16 +310,17 @@ function ModernColumn({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="text-center py-12 px-4"
             style={{
-              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+              backgroundColor: 'var(--appgram-muted)',
               borderRadius: `${borderRadius}px`,
-              border: `1px dashed ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+              border: `1px dashed var(--appgram-border)`,
             }}
           >
             <p
               className="text-sm"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               No items yet
             </p>
@@ -441,26 +444,26 @@ export function RoadmapBoard({
 
   return (
     <div className={cn('space-y-8', className)}>
-      {/* Page Header - Modern with gradient accent */}
+      {/* Page Header */}
       {heading && (
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.2, ease: [0.33, 1, 0.68, 1] }}
           className="mb-12"
           style={{ textAlign: headingAlignment }}
         >
-          <motion.h1
+          <h1
             className="text-4xl md:text-5xl font-bold mb-6"
             style={{ color: 'var(--appgram-foreground)' }}
           >
             {heading}
-          </motion.h1>
+          </h1>
           {description && (
             <p
               className="text-lg md:text-xl leading-relaxed"
               style={{
-                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                color: 'var(--appgram-muted-foreground)',
                 maxWidth: headingAlignment === 'center' ? '48rem' : '100%',
                 marginLeft: headingAlignment === 'center' ? 'auto' : headingAlignment === 'right' ? 'auto' : '0',
                 marginRight: headingAlignment === 'center' ? 'auto' : headingAlignment === 'left' ? 'auto' : '0',
@@ -472,27 +475,25 @@ export function RoadmapBoard({
         </motion.div>
       )}
 
-      {/* Developer's Note - Floating card */}
+      {/* Developer's Note */}
       {developersNote && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
         >
           <div
             className="overflow-hidden p-5"
             style={{
-              backgroundColor: `${primaryColor}08`,
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: 'var(--appgram-info-subtle)',
               borderRadius: `${borderRadius}px`,
-              boxShadow: `0 4px 24px -4px ${primaryColor}15`,
+              border: `1px solid var(--appgram-border)`,
             }}
           >
             <div className="flex items-start gap-3">
               <div
                 className="p-2 rounded-lg"
-                style={{ backgroundColor: `${primaryColor}15` }}
+                style={{ backgroundColor: isDark ? `${primaryColor}20` : `${primaryColor}15` }}
               >
                 <Clock className="w-5 h-5" style={{ color: primaryColor }} />
               </div>
@@ -512,7 +513,7 @@ export function RoadmapBoard({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.15, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           className="-mx-4 px-4"
         >
           <div className="overflow-x-auto">
@@ -523,9 +524,9 @@ export function RoadmapBoard({
                 ) : (
                   <motion.div
                     key={column.id}
-                    initial={{ opacity: 0, x: 30 }}
+                    initial={{ opacity: 0, x: 16 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
+                    transition={{ delay: 0.15 + index * 0.05, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
                   >
                     <ModernColumn
                       column={column}
@@ -548,30 +549,22 @@ export function RoadmapBoard({
           <>{renderEmpty()}</>
         ) : (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="text-center py-20"
           >
-            <motion.div
-              animate={{
-                y: [0, -8, 0],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
+            <div
               className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6"
               style={{
-                backgroundColor: `${primaryColor}10`,
+                backgroundColor: 'var(--appgram-muted)',
               }}
             >
               <Clock
                 className="h-10 w-10"
-                style={{ color: primaryColor }}
+                style={{ color: 'var(--appgram-muted-foreground)' }}
               />
-            </motion.div>
+            </div>
 
             <h3
               className="text-xl font-semibold mb-2"
@@ -581,7 +574,7 @@ export function RoadmapBoard({
             </h3>
             <p
               className="max-w-sm mx-auto"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               Our roadmap is being prepared. Check back soon for exciting updates!
             </p>

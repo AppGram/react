@@ -24,26 +24,44 @@ export interface AppgramProviderProps {
 
 const DEFAULT_API_URL = 'https://api.appgram.dev'
 
-// Arctic Blue light theme colors
+// Hazel-inspired light theme colors
 const DEFAULT_LIGHT_COLORS: CustomColors = {
-  primary: '#0EA5E9',      // Arctic blue
-  secondary: '#6B7280',    // Gray
-  accent: '#0EA5E9',       // Arctic blue
-  background: '#FFFFFF',   // White
-  text: '#242424',         // Near-black
-  cardBackground: '#F7F7F7',
-  cardText: '#242424',
+  primary: '#0EA5E9',           // Arctic blue
+  secondary: '#6B7280',         // Gray
+  accent: '#0EA5E9',            // Arctic blue
+  background: '#FFFFFF',        // White
+  text: '#09090B',              // Zinc-950
+  cardBackground: '#FAFAFA',    // Zinc-50
+  cardText: '#09090B',          // Zinc-950
+  muted: '#F4F4F5',             // Zinc-100
+  mutedForeground: '#71717A',   // Zinc-500
+  border: '#E4E4E7',            // Zinc-200
+  success: '#10B981',           // Emerald-500
+  successSubtle: '#ECFDF5',     // Emerald-50
+  warning: '#F59E0B',           // Amber-500
+  warningSubtle: '#FFFBEB',     // Amber-50
+  info: '#3B82F6',              // Blue-500
+  infoSubtle: '#EFF6FF',        // Blue-50
 }
 
-// Arctic Blue dark theme colors
+// Hazel-inspired dark theme colors
 const DEFAULT_DARK_COLORS: CustomColors = {
-  primary: '#38BDF8',      // Lighter arctic blue
-  secondary: '#3A3A3A',    // Dark gray (subtle for borders)
-  accent: '#38BDF8',       // Lighter arctic blue
-  background: '#0A0A0A',   // Near-black
-  text: '#E5E5E5',         // Light gray
-  cardBackground: '#1A1A1A',
-  cardText: '#E5E5E5',
+  primary: '#38BDF8',           // Lighter arctic blue
+  secondary: '#3A3A3A',         // Dark gray (subtle for borders)
+  accent: '#38BDF8',            // Lighter arctic blue
+  background: '#09090B',        // Zinc-950
+  text: '#FAFAFA',              // Zinc-50
+  cardBackground: '#18181B',    // Zinc-900
+  cardText: '#FAFAFA',          // Zinc-50
+  muted: '#27272A',             // Zinc-800
+  mutedForeground: '#A1A1AA',   // Zinc-400
+  border: '#3F3F46',            // Zinc-700
+  success: '#10B981',           // Emerald-500
+  successSubtle: '#064E3B',     // Emerald-900
+  warning: '#F59E0B',           // Amber-500
+  warningSubtle: '#78350F',     // Amber-900
+  info: '#3B82F6',              // Blue-500
+  infoSubtle: '#1E3A8A',        // Blue-900
 }
 
 const DEFAULT_THEME: AppgramTheme = {
@@ -188,6 +206,7 @@ export function AppgramProvider({
     // Set dark mode attribute for CSS targeting
     root.setAttribute('data-appgram-theme', isDark ? 'dark' : 'light')
 
+    // Core colors
     if (colors.primary) root.style.setProperty('--appgram-primary', colors.primary)
     if (colors.secondary) root.style.setProperty('--appgram-secondary', colors.secondary)
     if (colors.accent) root.style.setProperty('--appgram-accent', colors.accent)
@@ -195,6 +214,21 @@ export function AppgramProvider({
     if (colors.text) root.style.setProperty('--appgram-foreground', colors.text)
     if (colors.cardBackground) root.style.setProperty('--appgram-card', colors.cardBackground)
     if (colors.cardText) root.style.setProperty('--appgram-card-foreground', colors.cardText)
+
+    // Hazel design system tokens
+    if (colors.muted) root.style.setProperty('--appgram-muted', colors.muted)
+    if (colors.mutedForeground) root.style.setProperty('--appgram-muted-foreground', colors.mutedForeground)
+    if (colors.border) root.style.setProperty('--appgram-border', colors.border)
+
+    // Semantic status colors
+    if (colors.success) root.style.setProperty('--appgram-success', colors.success)
+    if (colors.successSubtle) root.style.setProperty('--appgram-success-subtle', colors.successSubtle)
+    if (colors.warning) root.style.setProperty('--appgram-warning', colors.warning)
+    if (colors.warningSubtle) root.style.setProperty('--appgram-warning-subtle', colors.warningSubtle)
+    if (colors.info) root.style.setProperty('--appgram-info', colors.info)
+    if (colors.infoSubtle) root.style.setProperty('--appgram-info-subtle', colors.infoSubtle)
+
+    // Typography and spacing
     if (theme.borderRadius) root.style.setProperty('--appgram-radius', `${theme.borderRadius}px`)
     if (theme.typography?.fontFamily) root.style.setProperty('--appgram-font-family', theme.typography.fontFamily)
   }, [currentColors, isDark, theme.borderRadius, theme.typography?.fontFamily])

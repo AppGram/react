@@ -307,8 +307,9 @@ export function StatusBoard({
       {/* Page Header */}
       {(heading || description) && (
         <motion.header
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           className="mb-8"
           style={{ textAlign: headingAlignment }}
         >
@@ -324,7 +325,7 @@ export function StatusBoard({
             <p
               className="text-base md:text-lg leading-relaxed max-w-2xl"
               style={{
-                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                color: 'var(--appgram-muted-foreground)',
                 marginLeft: headingAlignment === 'center' ? 'auto' : 0,
                 marginRight: headingAlignment === 'center' ? 'auto' : 0,
               }}
@@ -337,9 +338,9 @@ export function StatusBoard({
 
       {/* Overall Status Hero */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
       >
         {renderOverallStatus ? (
           renderOverallStatus(status.overall_status)
@@ -347,12 +348,10 @@ export function StatusBoard({
           <div
             className="flex flex-col sm:flex-row items-center justify-between p-5 border rounded-lg"
             style={{
-              backgroundColor: isDark ? 'var(--appgram-card)' : 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: 'var(--appgram-card)',
               borderColor:
                 status.overall_status === 'operational'
-                  ? (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)')
+                  ? 'var(--appgram-border)'
                   : overallConfig.color,
               borderRadius: `${Math.min(borderRadius, 12)}px`,
             }}
@@ -378,7 +377,7 @@ export function StatusBoard({
             </div>
             <div
               className="mt-4 sm:mt-0 text-sm font-medium flex items-center gap-2"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               <Clock className="w-4 h-4" />
               <span>
@@ -398,9 +397,9 @@ export function StatusBoard({
       {/* Active Incidents */}
       {activeIncidents.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.05, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
         >
           <div className="flex items-center gap-2 mb-4">
             <AlertTriangle className="w-5 h-5" style={{ color: '#f59e0b' }} />
@@ -424,14 +423,13 @@ export function StatusBoard({
               ) : (
                 <motion.div
                   key={incident.id}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
                   className="rounded-lg border overflow-hidden"
                   style={{
-                    backgroundColor: isDark ? 'var(--appgram-card)' : 'rgba(255, 255, 255, 0.7)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: 'var(--appgram-card)',
+                    borderColor: 'var(--appgram-border)',
                     borderRadius: `${Math.min(borderRadius, 12)}px`,
                   }}
                 >
@@ -439,8 +437,8 @@ export function StatusBoard({
                   <div
                     className="px-6 py-4 border-b"
                     style={{
-                      backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                      backgroundColor: 'var(--appgram-muted)',
+                      borderColor: 'var(--appgram-border)',
                     }}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -475,7 +473,7 @@ export function StatusBoard({
                       </div>
                       <div
                         className="text-sm"
-                        style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                        style={{ color: 'var(--appgram-muted-foreground)' }}
                       >
                         {formatDate(incident.created_at)}
                       </div>
@@ -493,13 +491,13 @@ export function StatusBoard({
                         {idx !== incident.updates.length - 1 && (
                           <div
                             className="absolute left-[3px] top-2 bottom-[-24px] w-[2px]"
-                            style={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }}
+                            style={{ backgroundColor: 'var(--appgram-border)' }}
                           />
                         )}
                         {/* Dot */}
                         <div
                           className="absolute left-0 top-1.5 w-2 h-2 rounded-full"
-                          style={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.3)' : '#1f2937' }}
+                          style={{ backgroundColor: 'var(--appgram-muted-foreground)' }}
                         />
 
                         <div className="space-y-1">
@@ -511,7 +509,7 @@ export function StatusBoard({
                           </p>
                           <div
                             className="flex items-center gap-2 text-xs"
-                            style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                            style={{ color: 'var(--appgram-muted-foreground)' }}
                           >
                             <span>{formatDateTime(update.created_at)}</span>
                             <span>—</span>
@@ -532,9 +530,9 @@ export function StatusBoard({
 
       {/* System Components */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.1, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
       >
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--appgram-foreground)' }}>
           System Status
@@ -545,7 +543,7 @@ export function StatusBoard({
             {Object.keys(componentGroups).length > 1 && (
               <h3
                 className="text-sm font-medium uppercase mb-3"
-                style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                style={{ color: 'var(--appgram-muted-foreground)' }}
               >
                 {groupName}
               </h3>
@@ -563,13 +561,13 @@ export function StatusBoard({
                   <motion.div
                     key={component.id}
                     whileHover={{ y: -2 }}
-                    className="group rounded-lg border p-4 transition-all"
+                    transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
+                    className="group rounded-lg border p-4"
                     style={{
-                      backgroundColor: isDark ? 'var(--appgram-card)' : 'rgba(255, 255, 255, 0.7)',
-                      backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)',
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                      backgroundColor: 'var(--appgram-card)',
+                      borderColor: 'var(--appgram-border)',
                       borderRadius: `${Math.min(borderRadius, 12)}px`,
+                      transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                     }}
                   >
                     <div className="flex items-start justify-between">
@@ -583,7 +581,7 @@ export function StatusBoard({
                         {showComponentDescriptions && component.description && (
                           <p
                             className="text-sm line-clamp-2"
-                            style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                            style={{ color: 'var(--appgram-muted-foreground)' }}
                           >
                             {component.description}
                           </p>
@@ -613,9 +611,9 @@ export function StatusBoard({
       {/* Incident History */}
       {showIncidentHistory && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.15, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
         >
           <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--appgram-foreground)' }}>
             Past Incidents
@@ -624,10 +622,8 @@ export function StatusBoard({
           <div
             className="rounded-lg border divide-y"
             style={{
-              backgroundColor: isDark ? 'var(--appgram-card)' : 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+              backgroundColor: 'var(--appgram-card)',
+              borderColor: 'var(--appgram-border)',
               borderRadius: `${Math.min(borderRadius, 12)}px`,
             }}
           >
@@ -645,9 +641,13 @@ export function StatusBoard({
                 return (
                   <motion.div
                     key={incident.id}
-                    whileHover={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(0, 0, 0, 0.02)' }}
-                    className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors"
-                    style={{ borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' }}
+                    whileHover={{ backgroundColor: 'var(--appgram-muted)' }}
+                    transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
+                    className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
+                    style={{
+                      borderColor: 'var(--appgram-border)',
+                      transition: 'background-color 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                    }}
                     onClick={() => onIncidentClick?.(incident)}
                   >
                     <div className="space-y-1">
@@ -665,7 +665,7 @@ export function StatusBoard({
                       </div>
                       <div
                         className="text-sm flex items-center gap-2"
-                        style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                        style={{ color: 'var(--appgram-muted-foreground)' }}
                       >
                         <span>{formatDate(incident.created_at)}</span>
                         {duration !== null && (
@@ -702,11 +702,11 @@ export function StatusBoard({
               <div className="py-16 text-center">
                 <div
                   className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4"
-                  style={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)' }}
+                  style={{ backgroundColor: 'var(--appgram-muted)' }}
                 >
                   <Activity
                     className="w-5 h-5"
-                    style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+                    style={{ color: 'var(--appgram-muted-foreground)' }}
                   />
                 </div>
                 <h3 className="font-medium" style={{ color: 'var(--appgram-foreground)' }}>
@@ -714,7 +714,7 @@ export function StatusBoard({
                 </h3>
                 <p
                   className="text-sm mt-1"
-                  style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                  style={{ color: 'var(--appgram-muted-foreground)' }}
                 >
                   Systems have been running smoothly.
                 </p>

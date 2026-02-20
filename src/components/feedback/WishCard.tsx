@@ -22,15 +22,16 @@ const statusLabels: Record<WishStatus, string> = {
   declined: 'Closed',
 }
 
-// Get status colors based on theme
-function getStatusColors(status: WishStatus, primaryColor: string) {
+// Get status colors using Hazel semantic tokens
+function getStatusColors(status: WishStatus, primaryColor: string, isDark: boolean) {
+  // Using semantic status colors from Hazel design system
   const statusStyles: Record<WishStatus, { color: string; bgColor: string }> = {
-    pending: { color: primaryColor, bgColor: `${primaryColor}15` },
-    under_review: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.1)' },
-    planned: { color: '#06b6d4', bgColor: 'rgba(6, 182, 212, 0.1)' },
-    in_progress: { color: primaryColor, bgColor: `${primaryColor}15` },
-    completed: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.1)' },
-    declined: { color: '#6b7280', bgColor: 'rgba(107, 114, 128, 0.1)' },
+    pending: { color: 'var(--appgram-info)', bgColor: 'var(--appgram-info-subtle)' },
+    under_review: { color: '#8b5cf6', bgColor: isDark ? '#4c1d95' : '#f3e8ff' },
+    planned: { color: 'var(--appgram-info)', bgColor: 'var(--appgram-info-subtle)' },
+    in_progress: { color: primaryColor, bgColor: isDark ? `${primaryColor}20` : `${primaryColor}10` },
+    completed: { color: 'var(--appgram-success)', bgColor: 'var(--appgram-success-subtle)' },
+    declined: { color: 'var(--appgram-muted-foreground)', bgColor: 'var(--appgram-muted)' },
   }
   return statusStyles[status] || statusStyles.pending
 }
@@ -140,7 +141,7 @@ export function WishCard({
 
   const displayVoteCount = voteCount ?? wish.vote_count
   const displayHasVoted = hasVoted ?? wish.has_voted ?? false
-  const statusColors = getStatusColors(wish.status, primaryColor)
+  const statusColors = getStatusColors(wish.status, primaryColor, isDark)
   const statusLabel = statusLabels[wish.status] || statusLabels.pending
 
   const handleVoteClick = (e: React.MouseEvent) => {
@@ -156,26 +157,25 @@ export function WishCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
       transition={{
-        delay: animationIndex * 0.04,
-        duration: 0.4,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        delay: animationIndex * 0.03,
+        duration: 0.15,
+        ease: [0.33, 1, 0.68, 1],
       }}
       className={cn('cursor-pointer group', className)}
       onClick={onClick}
     >
       <div
-        className="overflow-hidden transition-all duration-300 hover:shadow-2xl"
+        className="overflow-hidden"
         style={{
-          backgroundColor: isDark ? 'var(--appgram-card)' : 'rgba(255, 255, 255, 0.5)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          backgroundColor: 'var(--appgram-card)',
           borderRadius: `${borderRadius}px`,
-          boxShadow: isDark ? '0 4px 24px -4px rgba(0,0,0,0.3)' : `0 4px 24px -4px ${primaryColor}10`,
-          border: isDark ? '1px solid rgba(255,255,255,0.1)' : 'none',
+          boxShadow: isDark ? '0 1px 3px rgba(0,0,0,0.2)' : '0 1px 3px rgba(0,0,0,0.08)',
+          border: `1px solid var(--appgram-border)`,
+          transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
         }}
       >
         <div className="flex items-stretch">
@@ -183,10 +183,11 @@ export function WishCard({
           <motion.div
             className="flex flex-col items-center justify-center px-5 py-6 border-r"
             style={{
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+              borderColor: 'var(--appgram-border)',
               minWidth: '80px',
             }}
             whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           >
             {renderVoteButton ? (
               renderVoteButton({
@@ -206,11 +207,13 @@ export function WishCard({
                   className="flex flex-col items-center gap-1"
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
                 >
                   <ChevronUp
-                    className="h-5 w-5 transition-colors"
+                    className="h-5 w-5"
                     style={{
-                      color: displayHasVoted ? primaryColor : (isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'),
+                      color: displayHasVoted ? primaryColor : 'var(--appgram-muted-foreground)',
+                      transition: 'color 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                     }}
                   />
                   <span
@@ -269,7 +272,7 @@ export function WishCard({
               <p
                 className="text-sm leading-relaxed mb-4"
                 style={{
-                  color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                  color: 'var(--appgram-muted-foreground)',
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
@@ -285,7 +288,7 @@ export function WishCard({
               {showAuthor && (
                 <span
                   className="text-sm"
-                  style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                  style={{ color: 'var(--appgram-muted-foreground)' }}
                 >
                   by {wish.author?.name || wish.author_name || 'Anonymous'}
                 </span>
@@ -293,8 +296,11 @@ export function WishCard({
 
               {showCommentCount && (wish.comment_count ?? 0) > 0 && (
                 <div
-                  className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                  className="flex items-center gap-1.5 cursor-pointer"
+                  style={{
+                    color: 'var(--appgram-muted-foreground)',
+                    transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                  }}
                   onClick={handleCommentClick}
                 >
                   <MessageSquare className="h-4 w-4" />

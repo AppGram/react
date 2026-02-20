@@ -55,14 +55,14 @@ export function RoadmapColumn({
       {/* Column Header */}
       <div
         className="flex items-center gap-2 px-3 py-2 mb-3 rounded-lg"
-        style={{ backgroundColor: `${column.color}20` }}
+        style={{ backgroundColor: isDark ? `${column.color}15` : `${column.color}10` }}
       >
         <div
           className="w-3 h-3 rounded-full"
           style={{ backgroundColor: column.color }}
         />
         <h3 className="font-semibold" style={{ color: 'var(--appgram-foreground)' }}>{column.name}</h3>
-        <span className="text-sm ml-auto" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>{items.length}</span>
+        <span className="text-sm ml-auto" style={{ color: 'var(--appgram-muted-foreground)' }}>{items.length}</span>
       </div>
 
       {/* Items */}
@@ -75,14 +75,15 @@ export function RoadmapColumn({
               key={item.id}
               onClick={onItemClick ? () => onItemClick(item) : undefined}
               className={cn(
-                'p-3 shadow-sm',
-                'hover:shadow-md transition-shadow duration-200',
+                'p-3',
                 onItemClick && 'cursor-pointer'
               )}
               style={{
                 borderRadius: `${borderRadius}px`,
-                backgroundColor: isDark ? 'var(--appgram-card)' : 'white',
-                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                backgroundColor: 'var(--appgram-card)',
+                border: '1px solid var(--appgram-border)',
+                boxShadow: isDark ? '0 1px 2px rgba(0,0,0,0.15)' : '0 1px 2px rgba(0,0,0,0.05)',
+                transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
               }}
               role={onItemClick ? 'button' : undefined}
               tabIndex={onItemClick ? 0 : undefined}
@@ -91,11 +92,11 @@ export function RoadmapColumn({
                 {item.title || item.wish?.title || 'Untitled'}
               </h4>
               {(item.description || item.wish?.description) && (
-                <p className="text-sm line-clamp-2 mb-2" style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}>
+                <p className="text-sm line-clamp-2 mb-2" style={{ color: 'var(--appgram-muted-foreground)' }}>
                   {item.description || item.wish?.description}
                 </p>
               )}
-              <div className="flex items-center gap-2 text-xs" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--appgram-muted-foreground)' }}>
                 {showVoteCounts && item.wish && (
                   <span className="flex items-center gap-1">
                     <svg
@@ -125,7 +126,7 @@ export function RoadmapColumn({
         )}
 
         {items.length === 0 && (
-          <div className="text-center text-sm py-8" style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}>
+          <div className="text-center text-sm py-8" style={{ color: 'var(--appgram-muted-foreground)' }}>
             No items
           </div>
         )}

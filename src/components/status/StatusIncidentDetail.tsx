@@ -118,15 +118,16 @@ export function StatusIncidentDetail({
         {/* Back Button */}
         {showBackButton && onBack && (
           <motion.button
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             onClick={onBack}
-            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium transition-all hover:opacity-80"
+            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium"
             style={{
               color: primaryColor,
-              backgroundColor: `${primaryColor}10`,
+              backgroundColor: isDark ? `${primaryColor}15` : `${primaryColor}10`,
               borderRadius: `${borderRadius}px`,
+              transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -136,9 +137,9 @@ export function StatusIncidentDetail({
 
         {/* Incident Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           className="mb-8"
         >
           {/* Status Banner */}
@@ -190,7 +191,7 @@ export function StatusIncidentDetail({
 
             <div
               className="flex items-center gap-4 flex-wrap text-sm"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
@@ -209,14 +210,14 @@ export function StatusIncidentDetail({
         {/* Affected Components */}
         {showAffectedComponents && incident.affected_components && incident.affected_components.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
+            transition={{ delay: 0.05, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mb-8"
           >
             <h2
               className="text-sm font-semibold uppercase mb-3"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               Affected Components
             </h2>
@@ -226,9 +227,9 @@ export function StatusIncidentDetail({
                   key={component}
                   className="text-sm px-3 py-1.5 rounded-full"
                   style={{
-                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                    backgroundColor: 'var(--appgram-muted)',
                     color: 'var(--appgram-foreground)',
-                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                    border: '1px solid var(--appgram-border)',
                   }}
                 >
                   {component}
@@ -240,9 +241,9 @@ export function StatusIncidentDetail({
 
         {/* Timeline */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          transition={{ delay: 0.1, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
         >
           <h2
             className="text-lg font-semibold mb-4"
@@ -252,11 +253,10 @@ export function StatusIncidentDetail({
           </h2>
 
           <div
-            className={`rounded-lg border overflow-hidden ${isDark ? 'bg-[var(--appgram-card)]' : 'bg-white/70'}`}
+            className="rounded-lg border overflow-hidden"
             style={{
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+              backgroundColor: 'var(--appgram-card)',
+              borderColor: 'var(--appgram-border)',
               borderRadius: `${borderRadius}px`,
             }}
           >
@@ -274,9 +274,7 @@ export function StatusIncidentDetail({
                         <div
                           className="absolute left-[11px] top-8 bottom-[-28px] w-[2px]"
                           style={{
-                            backgroundColor: isDark
-                              ? 'rgba(255, 255, 255, 0.1)'
-                              : 'rgba(0, 0, 0, 0.1)',
+                            backgroundColor: 'var(--appgram-border)',
                           }}
                         />
                       )}
@@ -308,9 +306,7 @@ export function StatusIncidentDetail({
                             <span
                               className="text-xs"
                               style={{
-                                color: isDark
-                                  ? 'rgba(255, 255, 255, 0.5)'
-                                  : 'rgba(0, 0, 0, 0.5)',
+                                color: 'var(--appgram-muted-foreground)',
                               }}
                             >
                               {formatDateTime(update.created_at)}
@@ -320,9 +316,7 @@ export function StatusIncidentDetail({
                           <p
                             className="text-sm leading-relaxed"
                             style={{
-                              color: isDark
-                                ? 'rgba(255, 255, 255, 0.8)'
-                                : 'rgba(0, 0, 0, 0.8)',
+                              color: 'var(--appgram-foreground)',
                             }}
                           >
                             {update.message}
@@ -336,7 +330,7 @@ export function StatusIncidentDetail({
                 <div
                   className="text-center py-8"
                   style={{
-                    color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                    color: 'var(--appgram-muted-foreground)',
                   }}
                 >
                   <p>No updates available for this incident.</p>

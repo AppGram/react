@@ -143,15 +143,16 @@ export function ReleaseDetail({
         {/* Back Button */}
         {showBackButton && onBack && (
           <motion.button
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             onClick={onBack}
-            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium transition-all hover:opacity-80"
+            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium"
             style={{
               color: primaryColor,
-              backgroundColor: `${primaryColor}10`,
+              backgroundColor: isDark ? `${primaryColor}15` : `${primaryColor}10`,
               borderRadius: `${borderRadius}px`,
+              transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -161,9 +162,9 @@ export function ReleaseDetail({
 
         {/* Release Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           className="mb-8"
         >
           {/* Cover Image */}
@@ -220,7 +221,7 @@ export function ReleaseDetail({
           {(release.published_at || release.created_at) && (
             <div
               className="flex items-center gap-2 text-sm"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               <Calendar className="w-4 h-4" />
               <span>{formatDate(release.published_at || release.created_at)}</span>
@@ -231,9 +232,9 @@ export function ReleaseDetail({
         {/* Release Items by Type */}
         {Object.keys(itemsByType).length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
+            transition={{ delay: 0.05, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mb-8 space-y-6"
           >
             {(Object.entries(itemsByType) as [string, typeof release.items][]).map(([type, items]) => {
@@ -265,10 +266,12 @@ export function ReleaseDetail({
                     {items?.map((item) => (
                       <div
                         key={item.id}
-                        className={`p-4 backdrop-blur-sm border transition-all ${isDark ? 'bg-[var(--appgram-card)]' : 'bg-white/50'}`}
+                        className="p-4 border"
                         style={{
-                          borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                          backgroundColor: 'var(--appgram-card)',
+                          borderColor: 'var(--appgram-border)',
                           borderRadius: `${Math.min(borderRadius, 12)}px`,
+                          transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                         }}
                       >
                         <h4
@@ -280,7 +283,7 @@ export function ReleaseDetail({
                         {item.description && (
                           <p
                             className="text-sm"
-                            style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+                            style={{ color: 'var(--appgram-muted-foreground)' }}
                           >
                             {item.description}
                           </p>
@@ -304,14 +307,15 @@ export function ReleaseDetail({
         {/* Release Content */}
         {release.content && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            transition={{ delay: 0.1, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           >
             <div
-              className={`p-6 md:p-8 backdrop-blur-sm border ${isDark ? 'bg-[var(--appgram-card)]' : 'bg-white/70'}`}
+              className="p-6 md:p-8 border"
               style={{
-                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                backgroundColor: 'var(--appgram-card)',
+                borderColor: 'var(--appgram-border)',
                 borderRadius: `${borderRadius}px`,
               }}
             >

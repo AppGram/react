@@ -254,9 +254,9 @@ export function HelpCollections({
         {/* Page Header */}
         {(heading || description) && (
           <motion.header
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mb-10"
             style={{ textAlign: headingAlignment }}
           >
@@ -272,7 +272,7 @@ export function HelpCollections({
               <p
                 className="text-base md:text-lg leading-relaxed max-w-2xl"
                 style={{
-                  color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                  color: 'var(--appgram-muted-foreground)',
                   marginLeft: headingAlignment === 'center' ? 'auto' : 0,
                   marginRight: headingAlignment === 'center' ? 'auto' : 0,
                 }}
@@ -286,27 +286,29 @@ export function HelpCollections({
         {/* Search Bar */}
         {showSearch && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
+            transition={{ delay: 0.05, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mb-8"
           >
             <div className="relative max-w-2xl mx-auto flex items-center gap-2">
               <div className="relative flex-1">
                 <Search
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 z-10 pointer-events-none"
-                  style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+                  style={{ color: 'var(--appgram-muted-foreground)' }}
                 />
                 <input
                   type="text"
                   placeholder="Search for help articles..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className={`w-full h-12 pl-12 pr-4 text-sm backdrop-blur-sm border focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-[var(--appgram-card)]' : 'bg-white/50'}`}
+                  className="w-full h-12 pl-12 pr-4 text-sm border focus:outline-none focus:ring-2"
                   style={{
                     color: 'var(--appgram-foreground)',
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: 'var(--appgram-card)',
+                    borderColor: 'var(--appgram-border)',
                     borderRadius: `${borderRadius}px`,
+                    transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                   }}
                 />
               </div>
@@ -324,9 +326,9 @@ export function HelpCollections({
         {/* Quick Actions */}
         {actions.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.5 }}
+            transition={{ delay: 0.08, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="flex flex-wrap justify-center gap-3 mb-12"
           >
             {actions.map((action) => {
@@ -335,15 +337,20 @@ export function HelpCollections({
                 <button
                   key={action.label}
                   onClick={action.onClick}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full backdrop-blur-sm border transition-all group ${isDark ? 'bg-[var(--appgram-card)] hover:bg-[var(--appgram-card)]' : 'bg-white/50 hover:bg-white/80'}`}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full border group"
                   style={{
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: 'var(--appgram-card)',
+                    borderColor: 'var(--appgram-border)',
                     borderRadius: `${borderRadius}px`,
+                    transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                   }}
                 >
                   <Icon
-                    className="w-4 h-4 transition-colors"
-                    style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                    className="w-4 h-4"
+                    style={{
+                      color: 'var(--appgram-muted-foreground)',
+                      transition: 'color 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                    }}
                   />
                   <span className="text-sm font-medium" style={{ color: 'var(--appgram-foreground)' }}>
                     {action.label}
@@ -357,13 +364,13 @@ export function HelpCollections({
         {/* Collections */}
         {filteredFlows.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            transition={{ delay: 0.1, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mb-12"
           >
             <div className="flex items-center gap-2 mb-6">
-              <Folder className="w-5 h-5" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }} />
+              <Folder className="w-5 h-5" style={{ color: 'var(--appgram-muted-foreground)' }} />
               <h2
                 className="text-lg font-semibold"
                 style={{ color: 'var(--appgram-foreground)' }}
@@ -389,25 +396,27 @@ export function HelpCollections({
                   return (
                     <motion.article
                       key={flow.id}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      transition={{ delay: 0.25 + index * 0.05, duration: 0.4 }}
-                      whileHover={{ y: -4, scale: 1.01 }}
+                      transition={{ delay: 0.12 + index * 0.03, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
+                      whileHover={{ y: -4 }}
                       className="group cursor-pointer overflow-hidden"
                       onClick={() => onFlowClick?.(flow)}
                     >
                       <div
-                        className={`h-full p-5 backdrop-blur-sm border transition-all duration-300 hover:shadow-lg ${isDark ? 'bg-[var(--appgram-card)] hover:bg-[var(--appgram-card)]' : 'bg-white/70 hover:bg-white/90'}`}
+                        className="h-full p-5 border"
                         style={{
-                          borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                          backgroundColor: 'var(--appgram-card)',
+                          borderColor: 'var(--appgram-border)',
                           borderRadius: `${borderRadius}px`,
+                          transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                         }}
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div
                             className="p-2.5 rounded-xl"
-                            style={{ backgroundColor: `${accentColor}10` }}
+                            style={{ backgroundColor: isDark ? `${accentColor}15` : `${accentColor}10` }}
                           >
                             {flow.icon ? (
                               <span className="text-lg">{flow.icon}</span>
@@ -416,13 +425,16 @@ export function HelpCollections({
                             )}
                           </div>
                           <ChevronRight
-                            className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
-                            style={{ color: accentColor }}
+                            className="w-5 h-5 opacity-0 group-hover:opacity-100"
+                            style={{
+                              color: accentColor,
+                              transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                            }}
                           />
                         </div>
 
                         <h3
-                          className="text-base font-semibold mb-1.5 transition-colors"
+                          className="text-base font-semibold mb-1.5"
                           style={{ color: 'var(--appgram-foreground)' }}
                         >
                           {flow.name}
@@ -432,7 +444,7 @@ export function HelpCollections({
                           <p
                             className="text-sm leading-relaxed mb-3"
                             style={{
-                              color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                              color: 'var(--appgram-muted-foreground)',
                               display: '-webkit-box',
                               WebkitLineClamp: 2,
                               WebkitBoxOrient: 'vertical',
@@ -446,7 +458,7 @@ export function HelpCollections({
                         {flow.articles && flow.articles.length > 0 && (
                           <div
                             className="flex items-center gap-1.5 text-xs"
-                            style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                            style={{ color: 'var(--appgram-muted-foreground)' }}
                           >
                             <BookOpen className="w-3.5 h-3.5" />
                             <span>
@@ -466,13 +478,13 @@ export function HelpCollections({
         {/* Featured Articles */}
         {featuredArticles && featuredArticles.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
+            transition={{ delay: 0.18, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mb-12"
           >
             <div className="flex items-center gap-2 mb-6">
-              <FileText className="w-5 h-5" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }} />
+              <FileText className="w-5 h-5" style={{ color: 'var(--appgram-muted-foreground)' }} />
               <h2
                 className="text-lg font-semibold"
                 style={{ color: 'var(--appgram-foreground)' }}
@@ -485,11 +497,11 @@ export function HelpCollections({
               {featuredArticles.slice(0, showAllArticles ? undefined : 6).map((article, index) => (
                 <motion.button
                   key={article.id}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.05, duration: 0.4 }}
+                  transition={{ delay: 0.2 + index * 0.03, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
                   whileHover={{ x: 4 }}
-                  className={`w-full flex items-center gap-3 p-4 backdrop-blur-sm border transition-all group text-left ${isDark ? 'bg-[var(--appgram-card)] hover:bg-[var(--appgram-card)]' : 'bg-white/50 hover:bg-white/80'}`}
+                  className="w-full flex items-center gap-3 p-4 border group text-left"
                   onClick={() =>
                     onArticleClick?.(
                       article,
@@ -498,14 +510,16 @@ export function HelpCollections({
                   }
                   disabled={!onArticleClick}
                   style={{
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                    backgroundColor: 'var(--appgram-card)',
+                    borderColor: 'var(--appgram-border)',
                     borderRadius: `${Math.min(borderRadius, 12)}px`,
                     cursor: onArticleClick ? 'pointer' : 'default',
+                    transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                   }}
                 >
                   <div
                     className="p-2 rounded-lg"
-                    style={{ backgroundColor: `${accentColor}10` }}
+                    style={{ backgroundColor: isDark ? `${accentColor}15` : `${accentColor}10` }}
                   >
                     <FileText className="w-4 h-4" style={{ color: accentColor }} />
                   </div>
@@ -518,8 +532,11 @@ export function HelpCollections({
                     </span>
                   </div>
                   <ChevronRight
-                    className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity"
-                    style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+                    className="w-4 h-4 opacity-40 group-hover:opacity-100"
+                    style={{
+                      color: 'var(--appgram-muted-foreground)',
+                      transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                    }}
                   />
                 </motion.button>
               ))}
@@ -529,11 +546,12 @@ export function HelpCollections({
               <div className="text-center mt-6">
                 <button
                   onClick={() => setShowAllArticles(true)}
-                  className={`px-6 py-2.5 text-sm font-medium rounded-full border transition-all ${isDark ? 'hover:bg-[var(--appgram-card)]' : 'hover:bg-white/50'}`}
+                  className="px-6 py-2.5 text-sm font-medium rounded-full border"
                   style={{
                     color: accentColor,
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    borderColor: 'var(--appgram-border)',
                     borderRadius: `${borderRadius}px`,
+                    transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                   }}
                 >
                   Show {featuredArticles.length - 6} more articles
@@ -548,9 +566,10 @@ export function HelpCollections({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="text-center py-12"
           >
-            <p style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>
+            <p style={{ color: 'var(--appgram-muted-foreground)' }}>
               No results found for "{debouncedQuery}"
             </p>
           </motion.div>
@@ -564,19 +583,19 @@ export function HelpCollections({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
+              transition={{ delay: 0.15, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
               className="text-center py-20"
             >
               <div
                 className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6"
-                style={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' }}
+                style={{ backgroundColor: 'var(--appgram-muted)' }}
               >
-                <HelpCircle className="w-10 h-10" style={{ color: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)' }} />
+                <HelpCircle className="w-10 h-10" style={{ color: 'var(--appgram-muted-foreground)' }} />
               </div>
               <h3 className="text-2xl font-semibold mb-2" style={{ color: 'var(--appgram-foreground)' }}>
                 No help articles yet
               </h3>
-              <p className="max-w-md mx-auto" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>
+              <p className="max-w-md mx-auto" style={{ color: 'var(--appgram-muted-foreground)' }}>
                 Check back soon for helpful articles and guides.
               </p>
             </motion.div>
@@ -588,21 +607,24 @@ export function HelpCollections({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
+            transition={{ delay: 0.25, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mt-12 pt-8 border-t"
-            style={{ borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)' }}
+            style={{ borderColor: 'var(--appgram-border)' }}
           >
             <div
               className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               <p>Still need help? We're here for you.</p>
               <div className="flex items-center gap-6">
                 {contactSupportUrl && (
                   <a
                     href={contactSupportUrl}
-                    className="flex items-center gap-2 transition-colors hover:opacity-70"
-                    style={{ color: 'var(--appgram-foreground)' }}
+                    className="flex items-center gap-2"
+                    style={{
+                      color: 'var(--appgram-foreground)',
+                      transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                    }}
                   >
                     <Mail className="w-4 h-4" />
                     Contact Support
@@ -611,8 +633,11 @@ export function HelpCollections({
                 {onLiveChatClick && (
                   <button
                     onClick={onLiveChatClick}
-                    className="flex items-center gap-2 transition-colors hover:opacity-70"
-                    style={{ color: 'var(--appgram-foreground)' }}
+                    className="flex items-center gap-2"
+                    style={{
+                      color: 'var(--appgram-foreground)',
+                      transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                    }}
                   >
                     <MessageCircle className="w-4 h-4" />
                     Live Chat

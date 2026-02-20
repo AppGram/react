@@ -193,15 +193,16 @@ export function HelpArticles({
         {/* Back Button */}
         {showBackButton && onBack && (
           <motion.button
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             onClick={onBack}
-            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium transition-all hover:opacity-80"
+            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium"
             style={{
               color: primaryColor,
-              backgroundColor: `${primaryColor}10`,
+              backgroundColor: isDark ? `${primaryColor}15` : `${primaryColor}10`,
               borderRadius: `${borderRadius}px`,
+              transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -211,22 +212,23 @@ export function HelpArticles({
 
         {/* Flow Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           className="mb-8"
         >
           <div
-            className={`p-6 backdrop-blur-sm border ${isDark ? 'bg-[var(--appgram-card)]' : 'bg-white/70'}`}
+            className="p-6 border"
             style={{
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+              backgroundColor: 'var(--appgram-card)',
+              borderColor: 'var(--appgram-border)',
               borderRadius: `${borderRadius}px`,
             }}
           >
             <div className="flex items-start gap-4">
               <div
                 className="p-3 rounded-xl"
-                style={{ backgroundColor: `${accentColor}15` }}
+                style={{ backgroundColor: isDark ? `${accentColor}15` : `${accentColor}10` }}
               >
                 {flow.icon ? (
                   <span className="text-2xl">{flow.icon}</span>
@@ -244,14 +246,14 @@ export function HelpArticles({
                 {flow.description && (
                   <p
                     className="text-sm leading-relaxed"
-                    style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+                    style={{ color: 'var(--appgram-muted-foreground)' }}
                   >
                     {flow.description}
                   </p>
                 )}
                 <div
                   className="flex items-center gap-1.5 text-xs mt-3"
-                  style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                  style={{ color: 'var(--appgram-muted-foreground)' }}
                 >
                   <FileText className="w-3.5 h-3.5" />
                   <span>
@@ -266,27 +268,29 @@ export function HelpArticles({
         {/* Search Bar */}
         {showSearch && publishedArticles.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
+            transition={{ delay: 0.05, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="mb-8"
           >
             <div className="relative max-w-2xl mx-auto flex items-center gap-2">
               <div className="relative flex-1">
                 <Search
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 z-10 pointer-events-none"
-                  style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+                  style={{ color: 'var(--appgram-muted-foreground)' }}
                 />
                 <input
                   type="text"
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className={`w-full h-12 pl-12 pr-4 text-sm backdrop-blur-sm border focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-[var(--appgram-card)]' : 'bg-white/50'}`}
+                  className="w-full h-12 pl-12 pr-4 text-sm border focus:outline-none focus:ring-2"
                   style={{
                     color: 'var(--appgram-foreground)',
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: 'var(--appgram-card)',
+                    borderColor: 'var(--appgram-border)',
                     borderRadius: `${borderRadius}px`,
+                    transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                   }}
                 />
               </div>
@@ -303,9 +307,9 @@ export function HelpArticles({
         {/* Articles List */}
         {publishedArticles.length > 0 ? (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            transition={{ delay: 0.1, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           >
             <div className="space-y-3">
               <AnimatePresence>
@@ -318,23 +322,25 @@ export function HelpArticles({
                     return (
                       <motion.button
                         key={article.id}
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        transition={{ delay: 0.25 + index * 0.03, duration: 0.4 }}
+                        transition={{ delay: 0.12 + index * 0.03, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
                         whileHover={{ x: 4 }}
-                        className={`w-full flex items-start gap-4 p-4 backdrop-blur-sm border transition-all group text-left ${isDark ? 'bg-[var(--appgram-card)] hover:bg-[var(--appgram-card)]' : 'bg-white/50 hover:bg-white/80'}`}
+                        className="w-full flex items-start gap-4 p-4 border group text-left"
                         onClick={() => onArticleClick?.(article)}
                         disabled={!onArticleClick}
                         style={{
-                          borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                          backgroundColor: 'var(--appgram-card)',
+                          borderColor: 'var(--appgram-border)',
                           borderRadius: `${Math.min(borderRadius, 12)}px`,
                           cursor: onArticleClick ? 'pointer' : 'default',
+                          transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                         }}
                       >
                         <div
                           className="p-2 rounded-lg shrink-0"
-                          style={{ backgroundColor: `${accentColor}10` }}
+                          style={{ backgroundColor: isDark ? `${accentColor}15` : `${accentColor}10` }}
                         >
                           <FileText className="w-4 h-4" style={{ color: accentColor }} />
                         </div>
@@ -351,7 +357,7 @@ export function HelpArticles({
                               <span
                                 className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded"
                                 style={{
-                                  backgroundColor: `${typeConfig.color}12`,
+                                  backgroundColor: isDark ? `${typeConfig.color}20` : `${typeConfig.color}12`,
                                   color: typeConfig.color,
                                 }}
                               >
@@ -363,7 +369,7 @@ export function HelpArticles({
                           {article.excerpt && (
                             <p
                               className="text-sm line-clamp-2"
-                              style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+                              style={{ color: 'var(--appgram-muted-foreground)' }}
                             >
                               {article.excerpt}
                             </p>
@@ -371,8 +377,11 @@ export function HelpArticles({
                         </div>
 
                         <ChevronRight
-                          className="w-4 h-4 mt-1 opacity-40 group-hover:opacity-100 shrink-0 transition-opacity"
-                          style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+                          className="w-4 h-4 mt-1 opacity-40 group-hover:opacity-100 shrink-0"
+                          style={{
+                            color: 'var(--appgram-muted-foreground)',
+                            transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
+                          }}
                         />
                       </motion.button>
                     )
@@ -385,11 +394,12 @@ export function HelpArticles({
               <div className="text-center mt-6">
                 <button
                   onClick={() => setShowAllArticles(true)}
-                  className={`px-6 py-2.5 text-sm font-medium rounded-full border transition-all ${isDark ? 'hover:bg-[var(--appgram-card)]' : 'hover:bg-white/50'}`}
+                  className="px-6 py-2.5 text-sm font-medium rounded-full border"
                   style={{
                     color: accentColor,
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    borderColor: 'var(--appgram-border)',
                     borderRadius: `${borderRadius}px`,
+                    transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
                   }}
                 >
                   Show {publishedArticles.length - 10} more articles
@@ -401,9 +411,10 @@ export function HelpArticles({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="text-center py-12"
           >
-            <p style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>
+            <p style={{ color: 'var(--appgram-muted-foreground)' }}>
               No results found for "{debouncedQuery}"
             </p>
           </motion.div>
@@ -413,19 +424,19 @@ export function HelpArticles({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
+            transition={{ delay: 0.15, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="text-center py-20"
           >
             <div
               className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6"
-              style={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' }}
+              style={{ backgroundColor: 'var(--appgram-muted)' }}
             >
-              <FileText className="w-10 h-10" style={{ color: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)' }} />
+              <FileText className="w-10 h-10" style={{ color: 'var(--appgram-muted-foreground)' }} />
             </div>
             <h3 className="text-2xl font-semibold mb-2" style={{ color: 'var(--appgram-foreground)' }}>
               No articles yet
             </h3>
-            <p className="max-w-md mx-auto" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>
+            <p className="max-w-md mx-auto" style={{ color: 'var(--appgram-muted-foreground)' }}>
               Check back soon for help articles in this topic.
             </p>
           </motion.div>

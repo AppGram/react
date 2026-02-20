@@ -211,11 +211,11 @@ export function HelpCenter({
     }
   }, [viewState])
 
-  // Animation variants
+  // Animation variants - Hazel design system
   const pageVariants = {
-    initial: { opacity: 0, x: 20 },
+    initial: { opacity: 0, x: 8 },
     animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -20 },
+    exit: { opacity: 0, x: -8 },
   }
 
   return (
@@ -228,7 +228,7 @@ export function HelpCenter({
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           >
             <HelpCollections
               heading={heading}
@@ -257,7 +257,7 @@ export function HelpCenter({
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           >
             <HelpArticles
               flow={viewState.flow}
@@ -278,7 +278,7 @@ export function HelpCenter({
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           >
             <HelpArticleDetail
               article={viewState.article}

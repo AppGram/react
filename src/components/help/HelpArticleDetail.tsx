@@ -152,15 +152,16 @@ export function HelpArticleDetail({
         {/* Back Button */}
         {showBackButton && onBack && (
           <motion.button
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             onClick={onBack}
-            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium transition-all hover:opacity-80"
+            className="flex items-center gap-2 mb-6 px-4 py-2 text-sm font-medium"
             style={{
               color: primaryColor,
-              backgroundColor: `${primaryColor}10`,
+              backgroundColor: isDark ? `${primaryColor}15` : `${primaryColor}10`,
               borderRadius: `${borderRadius}px`,
+              transition: 'opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -170,15 +171,15 @@ export function HelpArticleDetail({
 
         {/* Article Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           className="mb-8"
         >
           <div className="flex items-start gap-4 mb-4">
             <div
               className="p-3 rounded-xl shrink-0"
-              style={{ backgroundColor: `${accentColor}15` }}
+              style={{ backgroundColor: isDark ? `${accentColor}15` : `${accentColor}10` }}
             >
               <FileText className="w-6 h-6" style={{ color: accentColor }} />
             </div>
@@ -188,7 +189,7 @@ export function HelpArticleDetail({
                   <span
                     className="text-xs font-medium uppercase px-2 py-0.5 rounded"
                     style={{
-                      backgroundColor: `${typeConfig.color}12`,
+                      backgroundColor: isDark ? `${typeConfig.color}20` : `${typeConfig.color}12`,
                       color: typeConfig.color,
                     }}
                   >
@@ -198,7 +199,7 @@ export function HelpArticleDetail({
                 {flow && (
                   <span
                     className="text-xs"
-                    style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                    style={{ color: 'var(--appgram-muted-foreground)' }}
                   >
                     {flow.name}
                   </span>
@@ -215,7 +216,7 @@ export function HelpArticleDetail({
 
           {/* Metadata */}
           {showMetadata && (
-            <div className="flex items-center gap-4 flex-wrap text-xs" style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="flex items-center gap-4 flex-wrap text-xs" style={{ color: 'var(--appgram-muted-foreground)' }}>
               {article.published_at && (
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
@@ -235,7 +236,7 @@ export function HelpArticleDetail({
           {article.excerpt && (
             <p
               className="mt-4 text-base leading-relaxed"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               {article.excerpt}
             </p>
@@ -244,14 +245,15 @@ export function HelpArticleDetail({
 
         {/* Article Content */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          transition={{ delay: 0.1, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
         >
           <div
-            className={`p-6 md:p-8 backdrop-blur-sm border ${isDark ? 'bg-[var(--appgram-card)]' : 'bg-white/70'}`}
+            className="p-6 md:p-8 border"
             style={{
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+              backgroundColor: 'var(--appgram-card)',
+              borderColor: 'var(--appgram-border)',
               borderRadius: `${borderRadius}px`,
             }}
           >

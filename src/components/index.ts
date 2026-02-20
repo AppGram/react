@@ -96,3 +96,9 @@ export {
   type BlogPostDetailProps,
   type BlogProps,
 } from './blog'
+
+// Chat components
+export {
+  ChatWidget,
+  type ChatWidgetProps,
+} from './chat'

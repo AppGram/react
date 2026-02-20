@@ -12,6 +12,17 @@ export interface CustomColors {
   cardText?: string
   navbarBackground?: string
   navbarText?: string
+  // Hazel design system tokens
+  muted?: string
+  mutedForeground?: string
+  border?: string
+  // Semantic status colors
+  success?: string
+  successSubtle?: string
+  warning?: string
+  warningSubtle?: string
+  info?: string
+  infoSubtle?: string
 }
 
 export interface CustomTypography {

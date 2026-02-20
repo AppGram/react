@@ -120,16 +120,16 @@ function ModernReleaseCard({
   return (
     <motion.article
       whileHover={{ y: -2 }}
+      transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
       className={cn(
-        'group cursor-pointer rounded-lg border transition-all duration-200',
+        'group cursor-pointer rounded-lg border',
         featured ? 'p-6 sm:p-8' : 'p-5'
       )}
       style={{
-        backgroundColor: isDark ? 'var(--appgram-card)' : 'rgba(255, 255, 255, 0.7)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+        backgroundColor: 'var(--appgram-card)',
+        borderColor: 'var(--appgram-border)',
         borderRadius: `${Math.min(borderRadius, 12)}px`,
+        transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
       }}
       onClick={onClick}
     >
@@ -160,7 +160,7 @@ function ModernReleaseCard({
         {(release.published_at || release.created_at) && (
           <span
             className="text-sm ml-auto"
-            style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+            style={{ color: 'var(--appgram-muted-foreground)' }}
           >
             {formatDate(release.published_at || release.created_at)}
           </span>
@@ -185,7 +185,7 @@ function ModernReleaseCard({
             'leading-relaxed mb-5',
             featured ? 'text-base' : 'text-sm'
           )}
-          style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+          style={{ color: 'var(--appgram-muted-foreground)' }}
         >
           {(release.excerpt || release.content || '').slice(0, 200)}
           {(release.excerpt || release.content || '').length > 200 ? '...' : ''}
@@ -219,7 +219,7 @@ function ModernReleaseCard({
       {featured && release.items && release.items.length > 0 && (
         <div
           className="rounded-lg p-4 mb-5 space-y-3"
-          style={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)' }}
+          style={{ backgroundColor: 'var(--appgram-muted)' }}
         >
           {release.items.slice(0, 4).map((item) => {
             const config = itemTypeConfig[item.type] || itemTypeConfig.other
@@ -232,7 +232,7 @@ function ModernReleaseCard({
                 />
                 <span
                   className="text-sm leading-snug"
-                  style={{ color: isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}
+                  style={{ color: 'var(--appgram-foreground)' }}
                 >
                   {item.title}
                 </span>
@@ -242,7 +242,7 @@ function ModernReleaseCard({
           {release.items.length > 4 && (
             <p
               className="text-xs pt-2"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               +{release.items.length - 4} more changes
             </p>
@@ -321,8 +321,9 @@ export function ReleaseList({
       {/* Page Header */}
       {(heading || description) && (
         <motion.header
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
           className="mb-12"
           style={{ textAlign: headingAlignment }}
         >
@@ -338,7 +339,7 @@ export function ReleaseList({
             <p
               className="text-base md:text-lg leading-relaxed max-w-2xl"
               style={{
-                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                color: 'var(--appgram-muted-foreground)',
                 marginLeft: headingAlignment === 'center' ? 'auto' : 0,
                 marginRight: headingAlignment === 'center' ? 'auto' : 0,
               }}
@@ -354,9 +355,9 @@ export function ReleaseList({
           {/* Featured Release */}
           {featuredRelease && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             >
               {renderRelease ? (
                 renderRelease(featuredRelease, 0)
@@ -378,7 +379,7 @@ export function ReleaseList({
             <div className="space-y-6">
               <h2
                 className="text-sm font-medium uppercase"
-                style={{ color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
+                style={{ color: 'var(--appgram-muted-foreground)' }}
               >
                 Previous Releases
               </h2>
@@ -388,10 +389,10 @@ export function ReleaseList({
                   {otherReleases.map((release, index) => (
                     <motion.div
                       key={release.id}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      transition={{ delay: index * 0.05 }}
+                      transition={{ delay: index * 0.03, duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
                     >
                       {renderRelease ? (
                         renderRelease(release, index + 1)
@@ -419,15 +420,16 @@ export function ReleaseList({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             className="text-center py-16"
           >
             <div
               className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6"
-              style={{ backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' }}
+              style={{ backgroundColor: 'var(--appgram-muted)' }}
             >
               <Package
                 className="w-8 h-8"
-                style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+                style={{ color: 'var(--appgram-muted-foreground)' }}
               />
             </div>
             <h3
@@ -438,7 +440,7 @@ export function ReleaseList({
             </h3>
             <p
               className="text-sm"
-              style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
+              style={{ color: 'var(--appgram-muted-foreground)' }}
             >
               Check back soon for updates.
             </p>

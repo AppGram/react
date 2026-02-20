@@ -108,16 +108,16 @@ export function VoteButton({
       disabled={isLoading}
       className={cn(
         'inline-flex flex-col items-center justify-center gap-0.5 rounded-lg',
-        'border transition-all duration-200',
-        'focus:outline-none focus:ring-2 focus:ring-offset-2',
+        'border focus:outline-none focus:ring-2 focus:ring-offset-2',
         sizeClasses[size],
         isLoading && 'opacity-50 cursor-not-allowed',
         className
       )}
       style={{
-        backgroundColor: hasVoted ? 'var(--appgram-primary)' : (isDark ? 'var(--appgram-card)' : 'white'),
-        borderColor: hasVoted ? 'var(--appgram-primary)' : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.2)'),
+        backgroundColor: hasVoted ? 'var(--appgram-primary)' : 'var(--appgram-card)',
+        borderColor: hasVoted ? 'var(--appgram-primary)' : 'var(--appgram-border)',
         color: hasVoted ? 'white' : 'var(--appgram-foreground)',
+        transition: 'all 150ms cubic-bezier(0.33, 1, 0.68, 1)',
       }}
     >
       {renderContent

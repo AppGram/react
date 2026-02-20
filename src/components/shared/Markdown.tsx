@@ -34,6 +34,63 @@ function isHtmlContent(content: string): boolean {
   return /<[a-z][\s\S]*>/i.test(decoded) && /<\/(?:p|div|span|h[1-6]|ul|ol|li|a|img|strong|em|br)>/i.test(decoded)
 }
 
+/**
+ * HtmlContent Component
+ * Renders HTML content with proper image handling and error fallbacks
+ */
+interface HtmlContentProps {
+  html: string
+  accentColor: string
+  className?: string
+}
+
+function HtmlContent({ html, accentColor, className }: HtmlContentProps): React.ReactElement {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (!containerRef.current) return
+
+    // Add error handlers to all images
+    const images = containerRef.current.querySelectorAll('img')
+    images.forEach((img) => {
+      img.addEventListener('error', () => {
+        // Replace broken image with placeholder
+        img.style.display = 'none'
+        const placeholder = document.createElement('div')
+        placeholder.className = 'my-4 p-4 rounded-lg bg-gray-100 text-center text-sm text-gray-500'
+        placeholder.textContent = 'Image failed to load'
+        img.parentNode?.insertBefore(placeholder, img)
+      })
+
+      // Ensure images have proper styling
+      img.style.maxWidth = '100%'
+      img.style.height = 'auto'
+      img.style.borderRadius = '8px'
+    })
+
+    // Style links
+    const links = containerRef.current.querySelectorAll('a')
+    links.forEach((link) => {
+      link.style.color = accentColor
+      link.style.textDecoration = 'underline'
+      link.setAttribute('target', '_blank')
+      link.setAttribute('rel', 'noopener noreferrer')
+    })
+  }, [html, accentColor])
+
+  return (
+    <div
+      ref={containerRef}
+      className={`max-w-none ${className || ''}`}
+      style={{
+        color: 'rgba(0, 0, 0, 0.8)',
+        lineHeight: 1.7,
+      }}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
+
 export interface MarkdownProps {
   /**
    * Markdown or HTML content to render
@@ -58,17 +115,13 @@ export function Markdown({
 }: MarkdownProps): React.ReactElement {
   const decodedContent = decodeHtmlEntities(content)
   
-  // If content is HTML, render it directly
+  // If content is HTML, parse and render it with proper image handling
   if (isHtmlContent(decodedContent)) {
     return (
-      <div 
-        className={`prose prose-slate max-w-none ${className || ''}`}
-        dangerouslySetInnerHTML={{ __html: decodedContent }}
-        style={{
-          ['--tw-prose-body' as string]: 'rgba(0, 0, 0, 0.8)',
-          ['--tw-prose-headings' as string]: '#1f2937',
-          ['tw-prose-links' as string]: accentColor,
-        }}
+      <HtmlContent
+        html={decodedContent}
+        accentColor={accentColor}
+        className={className}
       />
     )
   }

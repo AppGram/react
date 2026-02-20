@@ -19,7 +19,6 @@ import {
   type Wish,
   type StatusData,
   type StatusIncident,
-  type ThemeMode,
 } from '@appgram/react'
 
 // Configuration - Update these values to test with your Appgram project
@@ -31,13 +30,6 @@ const CONFIG = {
 }
 
 type Tab = 'components' | 'hooks' | 'roadmap' | 'releases' | 'help' | 'support' | 'status' | 'forms' | 'blog'
-
-// Theme mode icons
-const ThemeIcons = {
-  light: '☀️',
-  dark: '🌙',
-  system: '💻',
-}
 
 // ============================================================================
 // Demo: Pre-built Components
@@ -574,7 +566,6 @@ function StatusDemo() {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<Tab>('components')
-  const [themeMode, setThemeMode] = useState<ThemeMode>('system')
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'components', label: 'Components' },
@@ -588,14 +579,6 @@ export function App() {
     { id: 'blog', label: 'Blog' },
   ]
 
-  const themeModes: ThemeMode[] = ['light', 'dark', 'system']
-
-  const cycleTheme = () => {
-    const currentIndex = themeModes.indexOf(themeMode)
-    const nextIndex = (currentIndex + 1) % themeModes.length
-    setThemeMode(themeModes[nextIndex])
-  }
-
   return (
     <AppgramProvider
       config={{
@@ -603,8 +586,8 @@ export function App() {
         orgSlug: CONFIG.orgSlug,
         projectSlug: CONFIG.projectSlug,
         theme: {
-          // Theme mode: 'light' | 'dark' | 'system'
-          mode: themeMode,
+          // Force light mode
+          mode: 'light',
           // Light mode colors (Arctic Blue)
           colors: {
             primary: '#0EA5E9',
@@ -614,16 +597,6 @@ export function App() {
             text: '#242424',
             cardBackground: '#F7F7F7',
             cardText: '#242424',
-          },
-          // Dark mode colors (optional - has sensible defaults)
-          darkColors: {
-            primary: '#38BDF8',
-            secondary: '#3A3A3A',
-            accent: '#38BDF8',
-            background: '#0A0A0A',
-            text: '#E5E5E5',
-            cardBackground: '#1A1A1A',
-            cardText: '#E5E5E5',
           },
           borderRadius: 12,
         },
@@ -653,19 +626,7 @@ export function App() {
                 Test components and hooks with your Appgram project
               </p>
             </div>
-            {/* Theme Toggle */}
-            <button
-              onClick={cycleTheme}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors hover:opacity-80"
-              style={{
-                borderColor: 'var(--appgram-secondary)',
-                backgroundColor: 'var(--appgram-card)',
-              }}
-              title={`Current: ${themeMode}. Click to change.`}
-            >
-              <span className="text-lg">{ThemeIcons[themeMode]}</span>
-              <span className="text-sm font-medium capitalize">{themeMode}</span>
-            </button>
+
           </div>
         </header>
 
@@ -723,9 +684,6 @@ export function App() {
             </p>
             <p className="text-xs opacity-50 mt-1">
               Update these values in demo/src/App.tsx to test with your project
-            </p>
-            <p className="text-xs mt-2" style={{ color: 'var(--appgram-primary)' }}>
-              <strong>Theme:</strong> {themeMode} mode | Primary: Arctic Blue
             </p>
           </div>
         </footer>
