@@ -344,8 +344,8 @@ function SupportDemo() {
 // Demo: Contact Forms
 // ============================================================================
 
-// Demo form ID - replace with your own form ID for testing
-const DEMO_FORM_ID = 'your-form-id-here'
+// Demo form ID
+const DEMO_FORM_ID = 'contact_1771071872671_c3119e'
 
 function FormsDemo() {
   // Example of using the hook directly for custom implementations
@@ -361,8 +361,8 @@ function FormsDemo() {
           Pre-built contact form component that auto-loads form config and handles submission.
           Form views are automatically tracked for analytics.
         </p>
-        <p className="text-sm text-amber-600 mb-6">
-          Note: Replace DEMO_FORM_ID in the code with your actual form ID to test.
+        <p className="text-sm text-gray-500 mb-6">
+          Using form ID: {DEMO_FORM_ID}
         </p>
       </div>
 
