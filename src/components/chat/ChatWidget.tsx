@@ -8,6 +8,7 @@
  * ```tsx
  * import { ChatWidget } from '@appgram/react'
  *
+ * // Basic usage
  * <ChatWidget
  *   projectId="your-project-id"
  *   agentName="Help Assistant"
@@ -17,6 +18,25 @@
  *   onArticleClick={(slug) => router.push(`/help/${slug}`)}
  *   onSupportClick={() => router.push('/support')}
  * />
+ *
+ * // With custom colors (dark theme example)
+ * <ChatWidget
+ *   projectId="your-project-id"
+ *   accentColor="#8b5cf6"
+ *   colors={{
+ *     headerBackground: '#1f2937',
+ *     chatBackground: '#111827',
+ *     inputBackground: '#1f2937',
+ *     inputFieldBackground: '#374151',
+ *     foreground: '#f9fafb',
+ *     mutedForeground: '#9ca3af',
+ *     border: '#374151',
+ *     userMessageBackground: '#8b5cf6',
+ *     userMessageText: '#ffffff',
+ *     launcherBackground: '#8b5cf6',
+ *     launcherIconColor: '#ffffff',
+ *   }}
+ * />
  * ```
  */
 
@@ -25,9 +45,10 @@ import ReactMarkdown from 'react-markdown'
 import { cn } from '../../utils/cn'
 
 // Inline SVG Icons
-const MessageSquareIcon = ({ className }: { className?: string }) => (
+const MessageSquareIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
     className={className}
+    style={style}
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
@@ -39,9 +60,10 @@ const MessageSquareIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const XIcon = ({ className }: { className?: string }) => (
+const XIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
     className={className}
+    style={style}
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
@@ -128,6 +150,74 @@ interface ChatMessage {
   showSupportBanner?: boolean
 }
 
+export interface ChatWidgetColors {
+  /**
+   * Header background color
+   * @default '#f9fafb'
+   */
+  headerBackground?: string
+
+  /**
+   * Chat area background color
+   * @default '#ffffff'
+   */
+  chatBackground?: string
+
+  /**
+   * Input area background color
+   * @default '#f9fafb'
+   */
+  inputBackground?: string
+
+  /**
+   * Input field background color
+   * @default '#ffffff'
+   */
+  inputFieldBackground?: string
+
+  /**
+   * Main text color
+   * @default '#111827'
+   */
+  foreground?: string
+
+  /**
+   * Secondary/muted text color
+   * @default '#6b7280'
+   */
+  mutedForeground?: string
+
+  /**
+   * Border color
+   * @default '#e5e7eb'
+   */
+  border?: string
+
+  /**
+   * User message bubble background
+   * @default accentColor
+   */
+  userMessageBackground?: string
+
+  /**
+   * User message text color
+   * @default '#ffffff'
+   */
+  userMessageText?: string
+
+  /**
+   * Launcher button background color
+   * @default accentColor
+   */
+  launcherBackground?: string
+
+  /**
+   * Launcher button icon color
+   * @default '#ffffff'
+   */
+  launcherIconColor?: string
+}
+
 export interface ChatWidgetProps {
   /**
    * Project ID for API calls
@@ -158,10 +248,15 @@ export interface ChatWidgetProps {
   options?: ChatOption[]
 
   /**
-   * Accent color for the widget
+   * Accent color for the widget (used for links, send button, avatar accents)
    * @default '#6366f1'
    */
   accentColor?: string
+
+  /**
+   * Color customization options
+   */
+  colors?: ChatWidgetColors
 
   /**
    * API URL for the help center
@@ -199,6 +294,7 @@ export function ChatWidget({
     { label: 'Just browsing' },
   ],
   accentColor = '#6366f1',
+  colors = {},
   projectId,
   apiUrl = '',
   logoUrl,
@@ -206,6 +302,21 @@ export function ChatWidget({
   onSupportClick,
   className,
 }: ChatWidgetProps): React.ReactElement {
+  // Resolve colors with defaults
+  const resolvedColors = {
+    headerBackground: colors.headerBackground ?? '#f9fafb',
+    chatBackground: colors.chatBackground ?? '#ffffff',
+    inputBackground: colors.inputBackground ?? '#f9fafb',
+    inputFieldBackground: colors.inputFieldBackground ?? '#ffffff',
+    foreground: colors.foreground ?? '#111827',
+    mutedForeground: colors.mutedForeground ?? '#6b7280',
+    border: colors.border ?? '#e5e7eb',
+    userMessageBackground: colors.userMessageBackground ?? accentColor,
+    userMessageText: colors.userMessageText ?? '#ffffff',
+    launcherBackground: colors.launcherBackground ?? accentColor,
+    launcherIconColor: colors.launcherIconColor ?? '#ffffff',
+  }
+
   const [isOpen, setIsOpen] = useState(false)
   const [showChat, setShowChat] = useState(false)
   const [inputValue, setInputValue] = useState('')
@@ -379,8 +490,8 @@ export function ChatWidget({
             isOpen ? "opacity-100 scale-100" : "h-0 opacity-0 scale-95 pointer-events-none"
           )}
           style={{
-            backgroundColor: 'var(--appgram-background, #ffffff)',
-            border: '1px solid var(--appgram-border, #e5e7eb)',
+            backgroundColor: resolvedColors.chatBackground,
+            border: `1px solid ${resolvedColors.border}`,
             height: isOpen ? 'min(560px, calc(100vh - 6rem))' : '0',
           }}
         >
@@ -388,8 +499,8 @@ export function ChatWidget({
           <div
             className="px-5 py-4 flex items-center justify-between shrink-0"
             style={{
-              backgroundColor: 'var(--appgram-muted, #f9fafb)',
-              borderBottom: '1px solid var(--appgram-border, #e5e7eb)',
+              backgroundColor: resolvedColors.headerBackground,
+              borderBottom: `1px solid ${resolvedColors.border}`,
             }}
           >
             <div className="flex items-center gap-3">
@@ -409,13 +520,13 @@ export function ChatWidget({
               <div>
                 <h3
                   className="text-sm font-semibold"
-                  style={{ color: 'var(--appgram-foreground, #111827)' }}
+                  style={{ color: resolvedColors.foreground }}
                 >
                   {agentName}
                 </h3>
                 <p
                   className="text-xs flex items-center gap-1.5"
-                  style={{ color: 'var(--appgram-muted-foreground, #6b7280)' }}
+                  style={{ color: resolvedColors.mutedForeground }}
                 >
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
                   Online
@@ -425,7 +536,7 @@ export function ChatWidget({
             <button
               onClick={() => setIsOpen(false)}
               className="p-2 rounded-lg transition-all duration-150"
-              style={{ color: 'var(--appgram-muted-foreground, #6b7280)' }}
+              style={{ color: resolvedColors.mutedForeground }}
             >
               <XIcon className="w-4 h-4" />
             </button>
@@ -434,7 +545,7 @@ export function ChatWidget({
           {/* Chat Area */}
           <div
             className="flex-1 overflow-y-auto p-4 space-y-5"
-            style={{ backgroundColor: 'var(--appgram-background, #ffffff)' }}
+            style={{ backgroundColor: resolvedColors.chatBackground }}
           >
             {!showChat ? (
               <>
@@ -456,19 +567,19 @@ export function ChatWidget({
                   <div className="flex-1">
                     <p
                       className="text-sm font-medium"
-                      style={{ color: 'var(--appgram-foreground, #111827)' }}
+                      style={{ color: resolvedColors.foreground }}
                     >
                       {greeting}
                     </p>
                     <p
                       className="text-sm mt-0.5"
-                      style={{ color: 'var(--appgram-muted-foreground, #6b7280)' }}
+                      style={{ color: resolvedColors.mutedForeground }}
                     >
                       {subtitle}
                     </p>
                     <p
                       className="text-[11px] mt-2"
-                      style={{ color: 'var(--appgram-muted-foreground, #9ca3af)' }}
+                      style={{ color: resolvedColors.mutedForeground }}
                     >
                       {agentName}
                     </p>
@@ -483,9 +594,9 @@ export function ChatWidget({
                       onClick={() => handleOptionClick(option)}
                       className="block w-full text-left text-sm px-4 py-2.5 rounded-xl transition-all duration-150 ease-out"
                       style={{
-                        backgroundColor: 'var(--appgram-muted, #f9fafb)',
-                        border: '1px solid var(--appgram-border, #e5e7eb)',
-                        color: 'var(--appgram-foreground, #374151)',
+                        backgroundColor: resolvedColors.inputBackground,
+                        border: `1px solid ${resolvedColors.border}`,
+                        color: resolvedColors.foreground,
                       }}
                     >
                       {option.label}
@@ -516,8 +627,11 @@ export function ChatWidget({
                     <div className={cn("flex-1", message.sender === 'user' && "flex flex-col items-end")}>
                       {message.sender === 'user' ? (
                         <div
-                          className="rounded-2xl rounded-tr-md px-4 py-3 text-sm max-w-[85%] shadow-sm text-white"
-                          style={{ backgroundColor: accentColor }}
+                          className="rounded-2xl rounded-tr-md px-4 py-3 text-sm max-w-[85%] shadow-sm"
+                          style={{
+                            backgroundColor: resolvedColors.userMessageBackground,
+                            color: resolvedColors.userMessageText,
+                          }}
                         >
                           <p>{message.content}</p>
                         </div>
@@ -526,7 +640,7 @@ export function ChatWidget({
                           <div
                             className="prose prose-sm max-w-none"
                             style={{
-                              color: 'var(--appgram-muted-foreground, #374151)',
+                              color: resolvedColors.foreground,
                               '--tw-prose-links': accentColor,
                             } as React.CSSProperties}
                           >
@@ -535,11 +649,11 @@ export function ChatWidget({
                           {message.sources && message.sources.length > 0 && (
                             <div
                               className="mt-4 pt-3"
-                              style={{ borderTop: '1px solid var(--appgram-border, #e5e7eb)' }}
+                              style={{ borderTop: `1px solid ${resolvedColors.border}` }}
                             >
                               <p
                                 className="text-xs mb-2"
-                                style={{ color: 'var(--appgram-muted-foreground, #6b7280)' }}
+                                style={{ color: resolvedColors.mutedForeground }}
                               >
                                 Related articles
                               </p>
@@ -575,13 +689,13 @@ export function ChatWidget({
                                 <div className="flex-1 min-w-0">
                                   <p
                                     className="text-sm font-semibold"
-                                    style={{ color: 'var(--appgram-foreground, #111827)' }}
+                                    style={{ color: resolvedColors.foreground }}
                                   >
                                     Need more help?
                                   </p>
                                   <p
                                     className="text-xs mt-0.5"
-                                    style={{ color: 'var(--appgram-muted-foreground, #6b7280)' }}
+                                    style={{ color: resolvedColors.mutedForeground }}
                                   >
                                     Our support team is here to assist you.
                                   </p>
@@ -603,7 +717,7 @@ export function ChatWidget({
                       )}
                       <p
                         className="text-[11px] mt-1.5 mx-1"
-                        style={{ color: 'var(--appgram-muted-foreground, #9ca3af)' }}
+                        style={{ color: resolvedColors.mutedForeground }}
                       >
                         {message.timestamp}
                       </p>
@@ -630,15 +744,15 @@ export function ChatWidget({
                     <div className="flex items-center gap-1 py-2">
                       <span
                         className="w-2 h-2 rounded-full animate-bounce"
-                        style={{ backgroundColor: 'var(--appgram-muted-foreground, #9ca3af)', animationDelay: '0ms' }}
+                        style={{ backgroundColor: resolvedColors.mutedForeground, animationDelay: '0ms' }}
                       />
                       <span
                         className="w-2 h-2 rounded-full animate-bounce"
-                        style={{ backgroundColor: 'var(--appgram-muted-foreground, #9ca3af)', animationDelay: '150ms' }}
+                        style={{ backgroundColor: resolvedColors.mutedForeground, animationDelay: '150ms' }}
                       />
                       <span
                         className="w-2 h-2 rounded-full animate-bounce"
-                        style={{ backgroundColor: 'var(--appgram-muted-foreground, #9ca3af)', animationDelay: '300ms' }}
+                        style={{ backgroundColor: resolvedColors.mutedForeground, animationDelay: '300ms' }}
                       />
                     </div>
                   </div>
@@ -652,15 +766,15 @@ export function ChatWidget({
           <div
             className="p-3 shrink-0"
             style={{
-              backgroundColor: 'var(--appgram-muted, #f9fafb)',
-              borderTop: '1px solid var(--appgram-border, #e5e7eb)',
+              backgroundColor: resolvedColors.inputBackground,
+              borderTop: `1px solid ${resolvedColors.border}`,
             }}
           >
             <div
               className="flex items-center gap-2 rounded-xl px-3 py-1.5 transition-all duration-150"
               style={{
-                backgroundColor: 'var(--appgram-background, #ffffff)',
-                border: '1px solid var(--appgram-border, #e5e7eb)',
+                backgroundColor: resolvedColors.inputFieldBackground,
+                border: `1px solid ${resolvedColors.border}`,
               }}
             >
               <input
@@ -672,7 +786,7 @@ export function ChatWidget({
                 disabled={isLoading}
                 className="flex-1 bg-transparent text-sm focus:outline-none py-2 disabled:opacity-50"
                 style={{
-                  color: 'var(--appgram-foreground, #111827)',
+                  color: resolvedColors.foreground,
                 }}
               />
               <button
@@ -685,7 +799,7 @@ export function ChatWidget({
                 style={
                   inputValue.trim() && !isLoading
                     ? { backgroundColor: accentColor, color: '#ffffff' }
-                    : { color: 'var(--appgram-muted-foreground, #9ca3af)' }
+                    : { color: resolvedColors.mutedForeground }
                 }
               >
                 <SendIcon className="w-4 h-4" />
@@ -705,19 +819,21 @@ export function ChatWidget({
               "transition-all duration-200 ease-out",
               "hover:scale-105 hover:shadow-xl active:scale-95"
             )}
-            style={{ backgroundColor: accentColor }}
+            style={{ backgroundColor: resolvedColors.launcherBackground }}
           >
             <MessageSquareIcon
               className={cn(
-                "w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform duration-200",
+                "w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200",
                 isOpen && "rotate-90 opacity-0"
               )}
+              style={{ color: resolvedColors.launcherIconColor }}
             />
             <XIcon
               className={cn(
-                "w-5 h-5 sm:w-6 sm:h-6 text-white absolute transition-transform duration-200",
+                "w-5 h-5 sm:w-6 sm:h-6 absolute transition-transform duration-200",
                 isOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
               )}
+              style={{ color: resolvedColors.launcherIconColor }}
             />
           </div>
         </button>

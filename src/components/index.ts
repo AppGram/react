@@ -101,4 +101,5 @@ export {
 export {
   ChatWidget,
   type ChatWidgetProps,
+  type ChatWidgetColors,
 } from './chat'
