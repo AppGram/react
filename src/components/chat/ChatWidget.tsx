@@ -19,10 +19,11 @@
  *   onSupportClick={() => router.push('/support')}
  * />
  *
- * // With custom colors (dark theme example)
+ * // With custom colors and font size
  * <ChatWidget
  *   projectId="your-project-id"
  *   accentColor="#8b5cf6"
+ *   fontSize="lg" // 'sm' (12px), 'base' (14px), 'lg' (16px), or custom like '15px'
  *   colors={{
  *     headerBackground: '#1f2937',
  *     chatBackground: '#111827',
@@ -282,6 +283,13 @@ export interface ChatWidgetProps {
    * Custom class name
    */
   className?: string
+
+  /**
+   * Base font size for the widget
+   * Can be 'sm' (12px), 'base' (14px), 'lg' (16px), or a custom value like '13px' or '0.875rem'
+   * @default 'base'
+   */
+  fontSize?: 'sm' | 'base' | 'lg' | string
 }
 
 export function ChatWidget({
@@ -301,6 +309,7 @@ export function ChatWidget({
   onArticleClick,
   onSupportClick,
   className,
+  fontSize = 'base',
 }: ChatWidgetProps): React.ReactElement {
   // Resolve colors with defaults
   const resolvedColors = {
@@ -316,6 +325,14 @@ export function ChatWidget({
     launcherBackground: colors.launcherBackground ?? accentColor,
     launcherIconColor: colors.launcherIconColor ?? '#ffffff',
   }
+
+  // Resolve font size
+  const fontSizeMap: Record<string, string> = {
+    sm: '12px',
+    base: '14px',
+    lg: '16px',
+  }
+  const resolvedFontSize = fontSizeMap[fontSize] || fontSize
 
   const [isOpen, setIsOpen] = useState(false)
   const [showChat, setShowChat] = useState(false)
@@ -493,6 +510,7 @@ export function ChatWidget({
             backgroundColor: resolvedColors.chatBackground,
             border: `1px solid ${resolvedColors.border}`,
             height: isOpen ? 'min(560px, calc(100vh - 6rem))' : '0',
+            fontSize: resolvedFontSize,
           }}
         >
           {/* Header */}

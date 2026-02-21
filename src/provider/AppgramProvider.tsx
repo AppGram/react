@@ -196,41 +196,64 @@ export function AppgramProvider({
     theme,
   }), [config, client, fingerprint, theme])
 
-  // Inject CSS custom properties for theming
+  // Inject CSS custom properties for theming via a <style> element
+  // This approach is more compatible with browser extensions like Dark Reader
   useEffect(() => {
     if (typeof document === 'undefined') return
 
-    const root = document.documentElement
     const colors = currentColors
+    const styleId = 'appgram-theme-vars'
 
     // Set dark mode attribute for CSS targeting
-    root.setAttribute('data-appgram-theme', isDark ? 'dark' : 'light')
+    document.documentElement.setAttribute('data-appgram-theme', isDark ? 'dark' : 'light')
+
+    // Build CSS custom properties as a single CSS rule
+    const cssVars: string[] = []
 
     // Core colors
-    if (colors.primary) root.style.setProperty('--appgram-primary', colors.primary)
-    if (colors.secondary) root.style.setProperty('--appgram-secondary', colors.secondary)
-    if (colors.accent) root.style.setProperty('--appgram-accent', colors.accent)
-    if (colors.background) root.style.setProperty('--appgram-background', colors.background)
-    if (colors.text) root.style.setProperty('--appgram-foreground', colors.text)
-    if (colors.cardBackground) root.style.setProperty('--appgram-card', colors.cardBackground)
-    if (colors.cardText) root.style.setProperty('--appgram-card-foreground', colors.cardText)
+    if (colors.primary) cssVars.push(`--appgram-primary: ${colors.primary}`)
+    if (colors.secondary) cssVars.push(`--appgram-secondary: ${colors.secondary}`)
+    if (colors.accent) cssVars.push(`--appgram-accent: ${colors.accent}`)
+    if (colors.background) cssVars.push(`--appgram-background: ${colors.background}`)
+    if (colors.text) cssVars.push(`--appgram-foreground: ${colors.text}`)
+    if (colors.cardBackground) cssVars.push(`--appgram-card: ${colors.cardBackground}`)
+    if (colors.cardText) cssVars.push(`--appgram-card-foreground: ${colors.cardText}`)
 
     // Hazel design system tokens
-    if (colors.muted) root.style.setProperty('--appgram-muted', colors.muted)
-    if (colors.mutedForeground) root.style.setProperty('--appgram-muted-foreground', colors.mutedForeground)
-    if (colors.border) root.style.setProperty('--appgram-border', colors.border)
+    if (colors.muted) cssVars.push(`--appgram-muted: ${colors.muted}`)
+    if (colors.mutedForeground) cssVars.push(`--appgram-muted-foreground: ${colors.mutedForeground}`)
+    if (colors.border) cssVars.push(`--appgram-border: ${colors.border}`)
 
     // Semantic status colors
-    if (colors.success) root.style.setProperty('--appgram-success', colors.success)
-    if (colors.successSubtle) root.style.setProperty('--appgram-success-subtle', colors.successSubtle)
-    if (colors.warning) root.style.setProperty('--appgram-warning', colors.warning)
-    if (colors.warningSubtle) root.style.setProperty('--appgram-warning-subtle', colors.warningSubtle)
-    if (colors.info) root.style.setProperty('--appgram-info', colors.info)
-    if (colors.infoSubtle) root.style.setProperty('--appgram-info-subtle', colors.infoSubtle)
+    if (colors.success) cssVars.push(`--appgram-success: ${colors.success}`)
+    if (colors.successSubtle) cssVars.push(`--appgram-success-subtle: ${colors.successSubtle}`)
+    if (colors.warning) cssVars.push(`--appgram-warning: ${colors.warning}`)
+    if (colors.warningSubtle) cssVars.push(`--appgram-warning-subtle: ${colors.warningSubtle}`)
+    if (colors.info) cssVars.push(`--appgram-info: ${colors.info}`)
+    if (colors.infoSubtle) cssVars.push(`--appgram-info-subtle: ${colors.infoSubtle}`)
 
     // Typography and spacing
-    if (theme.borderRadius) root.style.setProperty('--appgram-radius', `${theme.borderRadius}px`)
-    if (theme.typography?.fontFamily) root.style.setProperty('--appgram-font-family', theme.typography.fontFamily)
+    if (theme.borderRadius) cssVars.push(`--appgram-radius: ${theme.borderRadius}px`)
+    if (theme.typography?.fontFamily) cssVars.push(`--appgram-font-family: ${theme.typography.fontFamily}`)
+
+    const cssContent = `:root { ${cssVars.join('; ')}; }`
+
+    // Find or create the style element
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement | null
+    if (!styleElement) {
+      styleElement = document.createElement('style')
+      styleElement.id = styleId
+      document.head.appendChild(styleElement)
+    }
+
+    // Update the style content
+    styleElement.textContent = cssContent
+
+    // Cleanup on unmount
+    return () => {
+      const el = document.getElementById(styleId)
+      if (el) el.remove()
+    }
   }, [currentColors, isDark, theme.borderRadius, theme.typography?.fontFamily])
 
   return (

@@ -679,10 +679,73 @@ export class AppgramClient {
   // ============================================================================
 
   /**
-   * Get a public contact form by ID
+   * Get a public contact form by ID (legacy endpoint)
+   * @deprecated Use getContactForm instead
    */
   async getPublicForm(formId: string): Promise<ApiResponse<ContactForm>> {
     return this.get<ContactForm>(`/api/v1/forms/${formId}`)
+  }
+
+  /**
+   * Get a contact form by ID via portal endpoint
+   */
+  async getContactForm(formId: string): Promise<ApiResponse<ContactForm>> {
+    const response = await this.get<{ contact_form: {
+      id: string
+      name: string
+      description?: string
+      fields: Array<{
+        id: string
+        type: string
+        label: string
+        placeholder?: string
+        required: boolean
+        options?: string[]
+        validation?: { minLength?: number; maxLength?: number; pattern?: string }
+      }>
+      submit_button_text: string
+      success_message: string
+      email_recipient: string
+      email_subject: string
+      enabled: boolean
+      created_at?: string
+      updated_at?: string
+    } }>(`/portal/contact-forms/${formId}`, {
+      project_id: this.projectId,
+    })
+
+    if (!response.success || !response.data?.contact_form) {
+      return {
+        success: false,
+        error: response.error || { code: 'NOT_FOUND', message: 'Contact form not found' },
+      }
+    }
+
+    const raw = response.data.contact_form
+    return {
+      success: true,
+      data: {
+        id: raw.id,
+        name: raw.name,
+        description: raw.description,
+        fields: raw.fields.map(f => ({
+          id: f.id,
+          type: f.type as ContactForm['fields'][0]['type'],
+          label: f.label,
+          placeholder: f.placeholder,
+          required: f.required,
+          options: f.options,
+          validation: f.validation,
+        })),
+        submitButtonText: raw.submit_button_text,
+        successMessage: raw.success_message,
+        emailRecipient: raw.email_recipient,
+        emailSubject: raw.email_subject,
+        enabled: raw.enabled,
+        createdAt: raw.created_at,
+        updatedAt: raw.updated_at,
+      },
+    }
   }
 
   /**
@@ -750,10 +813,86 @@ export class AppgramClient {
     formId: string,
     data: ContactFormSubmitInput
   ): Promise<ApiResponse<ContactFormSubmission>> {
-    return this.post<ContactFormSubmission>(
-      `/api/v1/projects/${projectId}/contact-forms/${formId}/submit`,
-      data
-    )
+    const url = `${this.baseUrl}/api/v1/projects/${projectId}/contact-forms/${formId}/submit`
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ form_id: formId, data: data.data }),
+      })
+
+      // Handle empty or non-JSON responses
+      const text = await response.text()
+
+      if (!text || text.trim() === '') {
+        if (response.ok) {
+          return {
+            success: true,
+            data: { id: '', form_id: formId, project_id: projectId, data: data.data, submitted_at: new Date().toISOString() },
+          }
+        }
+        return {
+          success: false,
+          error: {
+            code: String(response.status),
+            message: 'Submission failed',
+          },
+        }
+      }
+
+      let result: { success?: boolean; message?: string; error?: string; data?: unknown }
+      try {
+        result = JSON.parse(text)
+      } catch {
+        // Not valid JSON
+        if (response.ok) {
+          return {
+            success: true,
+            data: { id: '', form_id: formId, project_id: projectId, data: data.data, submitted_at: new Date().toISOString() },
+          }
+        }
+        return {
+          success: false,
+          error: {
+            code: String(response.status),
+            message: text || 'Submission failed',
+          },
+        }
+      }
+
+      if (!response.ok || !result.success) {
+        return {
+          success: false,
+          error: {
+            code: String(response.status),
+            message: result.message || result.error || 'Submission failed',
+          },
+        }
+      }
+
+      return {
+        success: true,
+        data: (result.data as ContactFormSubmission) || {
+          id: '',
+          form_id: formId,
+          project_id: projectId,
+          data: data.data,
+          submitted_at: new Date().toISOString(),
+        },
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'NETWORK_ERROR',
+          message: error instanceof Error ? error.message : 'Network error',
+        },
+      }
+    }
   }
 
   // ============================================================================

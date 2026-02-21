@@ -48,7 +48,7 @@ export function useContactForm(formId: string, options: UseContactFormOptions = 
     setError(null)
 
     try {
-      const response = await client.getPublicForm(formId)
+      const response = await client.getContactForm(formId)
 
       if (response.success && response.data) {
         setForm(response.data)
