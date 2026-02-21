@@ -22,6 +22,31 @@ export interface ContactFormField {
   validation?: ContactFormFieldValidation
 }
 
+/**
+ * Contact form integration settings
+ * Defines how the form submission is processed
+ */
+export interface ContactFormIntegration {
+  /**
+   * Integration type:
+   * - 'support': Creates a support ticket
+   * - 'wish': Creates a feature request/wish
+   * - 'email': Sends email notification
+   * - 'webhook': Posts to external webhook
+   */
+  type: 'support' | 'wish' | 'email' | 'webhook'
+
+  /**
+   * For support integration: auto-assign to team member
+   */
+  assigneeId?: string
+
+  /**
+   * For webhook integration: target URL
+   */
+  webhookUrl?: string
+}
+
 export interface ContactForm {
   id: string
   name: string
@@ -34,6 +59,11 @@ export interface ContactForm {
   enabled: boolean
   createdAt?: string
   updatedAt?: string
+
+  /**
+   * Integration settings for form submission
+   */
+  integration?: ContactFormIntegration
 }
 
 export interface ContactFormSubmission {

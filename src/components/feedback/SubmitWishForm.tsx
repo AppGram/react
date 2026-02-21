@@ -2,6 +2,7 @@
  * SubmitWishForm Component
  *
  * Sheet/modal for submitting new feature requests.
+ * Supports auto-detection of custom forms from project customization.
  * Adapted from FeatureRequestForm.
  */
 
@@ -10,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Send, Loader2, X } from 'lucide-react'
 import { cn } from '../../utils/cn'
 import { useAppgramContext } from '../../provider/context'
-import type { Wish } from '../../types'
+import type { Wish, ContactForm, ContactFormField } from '../../types'
 
 export interface SubmitWishFormProps {
   /**
@@ -51,6 +52,13 @@ export interface SubmitWishFormProps {
   submitButtonText?: string
 
   /**
+   * Custom form ID to use instead of default form.
+   * When provided, fetches the form config and renders its fields dynamically.
+   * The form should have integration.type = 'wish' to create feature requests.
+   */
+  customFormId?: string
+
+  /**
    * Custom class name
    */
   className?: string
@@ -70,6 +78,7 @@ export function SubmitWishForm({
   title = 'Submit a Feature Request',
   description = "Share your idea with us! We review all submissions and prioritize based on community feedback.",
   submitButtonText = 'Submit Feature Request',
+  customFormId,
   className,
 }: SubmitWishFormProps): React.ReactElement {
   const { theme, client } = useAppgramContext()
@@ -86,10 +95,82 @@ export function SubmitWishForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Auto-detect custom form from project customization
+  const [customForm, setCustomForm] = useState<ContactForm | null>(null)
+  const [customFormFields, setCustomFormFields] = useState<ContactFormField[]>([])
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string | boolean>>({})
+  const [isLoadingCustomization, setIsLoadingCustomization] = useState(false)
+
+  // Fetch project customization to get wish form config (only once when form opens)
+  useEffect(() => {
+    if (!open) return
+    if (customFormId) return // Skip auto-detect if explicit ID provided
+
+    const fetchCustomization = async () => {
+      setIsLoadingCustomization(true)
+      try {
+        const response = await client.getPageData()
+
+        if (response.success && response.data?.customization_data) {
+          const customizationData = response.data.customization_data as {
+            content?: { feedback?: { customFormId?: string } }
+            contactForms?: Record<string, ContactForm & { integration?: { type: string } }>
+          }
+
+          const contactForms = customizationData.contactForms || {}
+
+          // Check for explicit customFormId in content.feedback
+          const explicitFormId = customizationData.content?.feedback?.customFormId
+          if (explicitFormId && contactForms[explicitFormId]) {
+            const form = contactForms[explicitFormId]
+            if (form.enabled && form.integration?.type === 'wish') {
+              console.log('[SubmitWishForm] Using configured custom form:', explicitFormId, form.name)
+              setCustomForm(form as ContactForm)
+              // Filter out built-in fields
+              const extraFields = form.fields.filter(
+                (f) => !['title', 'description', 'email', 'name', 'message'].includes(f.id.toLowerCase())
+              )
+              setCustomFormFields(extraFields)
+              setIsLoadingCustomization(false)
+              return
+            }
+          }
+
+          // Auto-detect: find any enabled form with integration.type = 'wish'
+          const wishFormEntry = Object.entries(contactForms).find(([_, form]) => {
+            if (!form || typeof form !== 'object') return false
+            if (!('fields' in form) || !Array.isArray(form.fields)) return false
+            return form.enabled && form.integration?.type === 'wish'
+          })
+
+          if (wishFormEntry) {
+            const [formId, form] = wishFormEntry
+            console.log('[SubmitWishForm] Auto-detected wish form:', formId, form.name)
+            setCustomForm(form as ContactForm)
+            // Filter out built-in fields
+            const extraFields = form.fields.filter(
+              (f) => !['title', 'description', 'email', 'name', 'message'].includes(f.id.toLowerCase())
+            )
+            setCustomFormFields(extraFields)
+          } else {
+            console.log('[SubmitWishForm] No wish form found, using default')
+          }
+        }
+      } catch (err) {
+        console.log('[SubmitWishForm] Failed to fetch customization:', err)
+      } finally {
+        setIsLoadingCustomization(false)
+      }
+    }
+
+    fetchCustomization()
+  }, [open, client, customFormId])
+
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
       setFormData({ title: '', description: '', email: '' })
+      setCustomFieldValues({})
       setError(null)
     }
   }, [open])
@@ -97,6 +178,14 @@ export function SubmitWishForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.title.trim() || !formData.description.trim()) return
+
+    // Validate required custom fields
+    for (const field of customFormFields) {
+      if (field.required && !customFieldValues[field.id]) {
+        setError(`${field.label} is required`)
+        return
+      }
+    }
 
     setIsSubmitting(true)
     setError(null)
@@ -113,9 +202,21 @@ export function SubmitWishForm({
             .join(' ') || 'Anonymous User'
       }
 
+      // Build description with custom field values appended
+      let fullDescription = formData.description.trim()
+      if (Object.keys(customFieldValues).length > 0) {
+        const customFieldsText = customFormFields
+          .filter((f) => customFieldValues[f.id])
+          .map((f) => `${f.label}: ${customFieldValues[f.id]}`)
+          .join('\n')
+        if (customFieldsText) {
+          fullDescription += '\n\n---\n' + customFieldsText
+        }
+      }
+
       const response = await client.createWish({
         title: formData.title.trim(),
-        description: formData.description.trim(),
+        description: fullDescription,
         author_email: formData.email?.trim() || undefined,
         author_name: authorName,
       })
@@ -137,6 +238,11 @@ export function SubmitWishForm({
       setIsSubmitting(false)
     }
   }
+
+  // Effective form title and description (use custom form if available)
+  const effectiveTitle = customForm?.name || title
+  const effectiveDescription = customForm?.description || description
+  const effectiveSubmitText = customForm?.submitButtonText || submitButtonText
 
   return (
     <AnimatePresence>
@@ -191,13 +297,13 @@ export function SubmitWishForm({
                   className="text-2xl font-bold leading-tight mb-2"
                   style={{ color: 'var(--appgram-foreground)' }}
                 >
-                  {title}
+                  {effectiveTitle}
                 </h2>
                 <p
                   className="text-sm leading-relaxed"
                   style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
                 >
-                  {description}
+                  {effectiveDescription}
                 </p>
               </div>
 
@@ -362,6 +468,104 @@ export function SubmitWishForm({
                   </div>
                 </motion.div>
 
+                {/* Custom Form Fields */}
+                {customFormFields.length > 0 && customFormFields.map((field, index) => (
+                  <motion.div
+                    key={field.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 + index * 0.05 }}
+                    className="space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <label
+                        className="text-sm font-semibold"
+                        style={{ color: 'var(--appgram-foreground)' }}
+                      >
+                        {field.label}
+                      </label>
+                      <span
+                        className="text-xs font-medium"
+                        style={{ color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}
+                      >
+                        {field.required ? 'Required' : 'Optional'}
+                      </span>
+                    </div>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        placeholder={field.placeholder}
+                        value={String(customFieldValues[field.id] || '')}
+                        onChange={(e) =>
+                          setCustomFieldValues({ ...customFieldValues, [field.id]: e.target.value })
+                        }
+                        required={field.required}
+                        rows={4}
+                        className="w-full px-4 py-3 text-sm border focus:outline-none focus:ring-2 resize-none transition-all"
+                        style={{
+                          borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
+                          borderRadius: `${Math.min(borderRadius, 12)}px`,
+                          backgroundColor: isDark ? 'var(--appgram-card)' : 'white',
+                          color: 'var(--appgram-foreground)',
+                        }}
+                      />
+                    ) : field.type === 'select' ? (
+                      <select
+                        value={String(customFieldValues[field.id] || '')}
+                        onChange={(e) =>
+                          setCustomFieldValues({ ...customFieldValues, [field.id]: e.target.value })
+                        }
+                        required={field.required}
+                        className="w-full h-11 px-4 text-sm border focus:outline-none focus:ring-2 transition-all appearance-none"
+                        style={{
+                          borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
+                          borderRadius: `${Math.min(borderRadius, 12)}px`,
+                          backgroundColor: isDark ? 'var(--appgram-card)' : 'white',
+                          color: 'var(--appgram-foreground)',
+                        }}
+                      >
+                        <option value="">{field.placeholder || 'Select an option'}</option>
+                        {(field.options || []).map((opt) => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : field.type === 'checkbox' ? (
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!customFieldValues[field.id]}
+                          onChange={(e) =>
+                            setCustomFieldValues({ ...customFieldValues, [field.id]: e.target.checked })
+                          }
+                          className="w-4 h-4"
+                        />
+                        <span
+                          className="text-sm"
+                          style={{ color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)' }}
+                        >
+                          {field.placeholder || field.label}
+                        </span>
+                      </label>
+                    ) : (
+                      <input
+                        type={field.type === 'email' ? 'email' : 'text'}
+                        placeholder={field.placeholder}
+                        value={String(customFieldValues[field.id] || '')}
+                        onChange={(e) =>
+                          setCustomFieldValues({ ...customFieldValues, [field.id]: e.target.value })
+                        }
+                        required={field.required}
+                        className="w-full h-11 px-4 text-sm border focus:outline-none focus:ring-2 transition-all"
+                        style={{
+                          borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
+                          borderRadius: `${Math.min(borderRadius, 12)}px`,
+                          backgroundColor: isDark ? 'var(--appgram-card)' : 'white',
+                          color: 'var(--appgram-foreground)',
+                        }}
+                      />
+                    )}
+                  </motion.div>
+                ))}
+
                 {/* Separator */}
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -402,7 +606,8 @@ export function SubmitWishForm({
                     disabled={
                       !formData.title.trim() ||
                       !formData.description.trim() ||
-                      isSubmitting
+                      isSubmitting ||
+                      isLoadingCustomization
                     }
                     className="w-full flex items-center justify-center gap-2.5 h-12 text-base font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
@@ -418,7 +623,7 @@ export function SubmitWishForm({
                     ) : (
                       <>
                         <Send className="w-5 h-5" />
-                        <span>{submitButtonText}</span>
+                        <span>{effectiveSubmitText}</span>
                       </>
                     )}
                   </button>

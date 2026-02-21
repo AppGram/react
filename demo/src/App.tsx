@@ -323,16 +323,26 @@ function SupportDemo() {
       <div>
         <h3 className="text-lg font-semibold mb-2">SupportForm Component</h3>
         <p className="text-gray-600 mb-4">
-          Support ticket submission form.
+          Support ticket submission form. Automatically detects custom form from project settings.
         </p>
+        <div className="p-3 bg-blue-50 text-blue-800 rounded-lg text-sm mb-4">
+          <strong>Auto-detection:</strong> Check console to see which form is loaded.
+          <br />
+          The component will automatically use a custom form if configured in your project's
+          customization settings (<code>content.support.customFormId</code>) or if any contact
+          form has <code>integration.type = 'support'</code>.
+        </div>
       </div>
       <div className="max-w-md">
         <SupportForm
           showCategory
           showName
           onSubmitSuccess={(ticket) => {
-            console.log('Ticket created:', ticket)
+            console.log('[SupportDemo] Ticket created:', ticket)
             alert('Ticket submitted successfully!')
+          }}
+          onSubmitError={(error) => {
+            console.error('[SupportDemo] Submit error:', error)
           }}
         />
       </div>

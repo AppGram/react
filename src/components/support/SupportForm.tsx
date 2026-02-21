@@ -32,7 +32,7 @@
  * ```
  */
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Send,
@@ -51,7 +51,8 @@ import {
 import { cn } from '../../utils/cn'
 import { useAppgramContext } from '../../provider/context'
 import { useSupport } from '../../hooks/useSupport'
-import type { SupportRequestCategory, SupportRequest } from '../../types'
+import { useContactForm } from '../../hooks/useContactForm'
+import type { SupportRequestCategory, SupportRequest, ContactFormField, ContactForm } from '../../types'
 
 // Status configuration for tickets
 const statusConfig: Record<
@@ -162,6 +163,13 @@ export interface SupportFormProps {
   accessToken?: string
 
   /**
+   * Custom contact form ID to use instead of default support form.
+   * When provided, fetches the form config and renders its fields dynamically.
+   * The form should have integration.type = 'support' to create tickets.
+   */
+  customFormId?: string
+
+  /**
    * Custom class name
    */
   className?: string
@@ -193,9 +201,10 @@ export function SupportForm({
   showAttachments = true,
   submitButtonText = 'Send Request',
   accessToken,
+  customFormId,
   className,
 }: SupportFormProps): React.ReactElement {
-  const { theme } = useAppgramContext()
+  const { theme, client } = useAppgramContext()
   const {
     submitTicket,
     isSubmitting,
@@ -211,6 +220,123 @@ export function SupportForm({
     onSubmitError,
   })
 
+  // Auto-detect custom form from project customization
+  // Store the actual form object, not just the ID (like BetterApp does)
+  const [customForm, setCustomForm] = useState<ContactForm | null>(null)
+  const [isLoadingCustomization, setIsLoadingCustomization] = useState(true)
+  const [formError, setFormError] = useState<string | null>(null)
+
+  // Fetch project customization to get support form config
+  useEffect(() => {
+    const fetchCustomization = async () => {
+      try {
+        const response = await client.getPageData()
+
+        if (response.success && response.data?.customization_data) {
+          const customizationData = response.data.customization_data as {
+            content?: { support?: { customFormId?: string } }
+            contactForms?: Record<string, ContactForm & { integration?: { type: string } }>
+          }
+
+          console.log('[SupportForm] Customization data:', {
+            hasContent: !!customizationData.content,
+            supportConfig: customizationData.content?.support,
+            contactFormsKeys: customizationData.contactForms ? Object.keys(customizationData.contactForms) : [],
+          })
+
+          const contactForms = customizationData.contactForms || {}
+
+          // Check for explicit customFormId in content.support
+          const explicitFormId = customizationData.content?.support?.customFormId
+          if (explicitFormId && contactForms[explicitFormId]) {
+            const form = contactForms[explicitFormId]
+            if (form.enabled && form.integration?.type === 'support') {
+              console.log('[SupportForm] Using configured custom form:', explicitFormId, form.name)
+              setCustomForm(form as ContactForm)
+              setIsLoadingCustomization(false)
+              return
+            }
+          }
+
+          // Auto-detect: find any enabled form with integration.type = 'support'
+          if (Object.keys(contactForms).length > 0) {
+            // Filter for actual form objects (have fields array and name property)
+            const formEntries = Object.entries(contactForms).filter(([_, form]) => {
+              if (!form || typeof form !== 'object') return false
+              if (!('fields' in form) || !Array.isArray(form.fields)) return false
+              if (!('name' in form)) return false
+              return true
+            })
+
+            console.log('[SupportForm] Valid form entries:', formEntries.map(([k, f]) => ({ id: k, name: (f as ContactForm).name })))
+
+            const supportFormEntry = formEntries.find(([_, form]) => {
+              return form.enabled && form.integration?.type === 'support'
+            })
+
+            if (supportFormEntry) {
+              const [formId, form] = supportFormEntry
+              console.log('[SupportForm] Auto-detected support form:', formId, form.name)
+              setCustomForm(form as ContactForm)
+            } else {
+              console.log('[SupportForm] No support form found, using default')
+            }
+          } else {
+            console.log('[SupportForm] No contactForms in customization, using default')
+          }
+        } else {
+          console.log('[SupportForm] No customization data, using default')
+        }
+      } catch (err) {
+        console.log('[SupportForm] Failed to fetch customization:', err)
+        setFormError('Failed to load form configuration')
+      } finally {
+        setIsLoadingCustomization(false)
+      }
+    }
+
+    // Only auto-fetch if no explicit customFormId provided
+    if (!customFormId) {
+      fetchCustomization()
+    } else {
+      setIsLoadingCustomization(false)
+    }
+  }, [client, customFormId])
+
+  // If explicit customFormId prop is provided, fetch that form via API
+  const {
+    form: fetchedForm,
+    isLoading: isLoadingForm,
+    error: fetchError,
+  } = useContactForm(customFormId || '', { enabled: !!customFormId })
+
+  // Use fetched form if customFormId prop was provided, otherwise use auto-detected form
+  const effectiveForm = customFormId ? fetchedForm : customForm
+  const effectiveFormError = customFormId ? fetchError : formError
+  const isLoadingEffectiveForm = customFormId ? isLoadingForm : false
+
+  // Log which form is being used
+  useEffect(() => {
+    if (isLoadingCustomization) {
+      console.log('[SupportForm] Loading project customization...')
+      return
+    }
+
+    if (effectiveForm) {
+      console.log('[SupportForm] Using custom form:', {
+        id: effectiveForm.id,
+        name: effectiveForm.name,
+        fields: effectiveForm.fields.length,
+        integration: effectiveForm.integration,
+        source: customFormId ? 'explicit prop (fetched)' : 'auto-detected from customization',
+      })
+    } else if (effectiveFormError) {
+      console.log('[SupportForm] Custom form error:', effectiveFormError)
+    } else {
+      console.log('[SupportForm] Using default support form')
+    }
+  }, [effectiveForm, effectiveFormError, isLoadingCustomization, customFormId])
+
   const [activeTab, setActiveTab] = useState<'submit' | 'check'>('submit')
   const [formData, setFormData] = useState({
     subject: '',
@@ -219,6 +345,9 @@ export function SupportForm({
     user_name: '',
     category: 'general_inquiry' as SupportRequestCategory,
   })
+  // State for custom form fields
+  const [customFormData, setCustomFormData] = useState<Record<string, string | boolean>>({})
+  const [customFieldErrors, setCustomFieldErrors] = useState<Record<string, string>>({})
   const [checkEmail, setCheckEmail] = useState('')
   const [attachments, setAttachments] = useState<File[]>([])
   const [magicLinkSent, setMagicLinkSent] = useState(false)
@@ -232,10 +361,117 @@ export function SupportForm({
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
+  // Validate a custom form field
+  const validateCustomField = (
+    value: string | boolean | undefined,
+    field: ContactFormField
+  ): string | null => {
+    if (field.type === 'checkbox') {
+      if (field.required && !value) return 'This field is required'
+      return null
+    }
+    const strValue = String(value || '')
+    if (field.required && !strValue.trim()) return 'This field is required'
+    if (field.type === 'email' && strValue) {
+      if (!isValidEmail(strValue)) return 'Please enter a valid email'
+    }
+    if (field.validation) {
+      if (field.validation.minLength && strValue.length < field.validation.minLength) {
+        return `Must be at least ${field.validation.minLength} characters`
+      }
+      if (field.validation.maxLength && strValue.length > field.validation.maxLength) {
+        return `Must be no more than ${field.validation.maxLength} characters`
+      }
+    }
+    return null
+  }
+
+  // Handle custom form field changes
+  const handleCustomFieldChange = (fieldId: string, value: string | boolean) => {
+    setCustomFormData(prev => ({ ...prev, [fieldId]: value }))
+    setCustomFieldErrors(prev => {
+      const next = { ...prev }
+      delete next[fieldId]
+      return next
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isValidEmail(formData.user_email)) return
     clearMessages()
+
+    // Handle custom form submission
+    if (effectiveForm) {
+      // Validate all custom form fields
+      const errors: Record<string, string> = {}
+      let emailField = ''
+      let subjectField = ''
+      let descriptionField = ''
+
+      for (const field of effectiveForm.fields) {
+        const value = customFormData[field.id]
+        const error = validateCustomField(value, field)
+        if (error) errors[field.id] = error
+
+        // Try to identify email, subject, description fields by label/type
+        const labelLower = field.label.toLowerCase()
+        if (field.type === 'email' || labelLower.includes('email')) {
+          emailField = String(value || '')
+        } else if (labelLower.includes('subject') || labelLower.includes('title')) {
+          subjectField = String(value || '')
+        } else if (field.type === 'textarea' || labelLower.includes('description') || labelLower.includes('message')) {
+          descriptionField = String(value || '')
+        }
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setCustomFieldErrors(errors)
+        return
+      }
+
+      // Build description from all form fields if not found
+      if (!descriptionField) {
+        descriptionField = effectiveForm.fields
+          .map(f => `${f.label}: ${customFormData[f.id] || ''}`)
+          .join('\n')
+      }
+
+      // Use first text field as subject if not found
+      if (!subjectField) {
+        const firstTextField = effectiveForm.fields.find(f => f.type === 'text')
+        if (firstTextField) {
+          subjectField = String(customFormData[firstTextField.id] || effectiveForm.name)
+        } else {
+          subjectField = effectiveForm.name
+        }
+      }
+
+      // Email is required
+      if (!emailField || !isValidEmail(emailField)) {
+        const emailFieldDef = effectiveForm.fields.find(f => f.type === 'email')
+        if (emailFieldDef) {
+          setCustomFieldErrors({ [emailFieldDef.id]: 'Valid email is required' })
+        }
+        return
+      }
+
+      const result = await submitTicket({
+        subject: subjectField,
+        description: descriptionField,
+        user_email: emailField,
+        attachments: showAttachments && attachments.length > 0 ? attachments : undefined,
+      })
+
+      if (result) {
+        setCustomFormData({})
+        setCustomFieldErrors({})
+        setAttachments([])
+      }
+      return
+    }
+
+    // Default form submission
+    if (!isValidEmail(formData.user_email)) return
 
     const result = await submitTicket({
       subject: formData.subject,
@@ -454,19 +690,19 @@ export function SupportForm({
                   className="text-lg font-semibold mb-1"
                   style={{ color: 'var(--appgram-foreground)' }}
                 >
-                  {submitTitle}
+                  {effectiveForm?.name || submitTitle}
                 </h2>
                 <p
                   className="text-sm leading-relaxed"
                   style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}
                 >
-                  {submitDescription}
+                  {effectiveForm?.description || submitDescription}
                 </p>
               </div>
             </div>
 
             {/* Error Message */}
-            {error && (
+            {(error || effectiveFormError) && (
               <div
                 className="p-3 text-sm mb-4"
                 style={{
@@ -475,12 +711,43 @@ export function SupportForm({
                   borderRadius: `${Math.min(borderRadius, 8)}px`,
                 }}
               >
-                {error}
+                {error || effectiveFormError}
+              </div>
+            )}
+
+            {/* Loading state for customization or custom form */}
+            {(isLoadingCustomization || isLoadingEffectiveForm) && (
+              <div className="flex items-center justify-center py-12">
+                <div
+                  className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
+                  style={{ borderColor: primaryColor, borderTopColor: 'transparent' }}
+                />
               </div>
             )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Custom Form Fields */}
+              {effectiveForm && !isLoadingEffectiveForm && !isLoadingCustomization && (
+                <>
+                  {effectiveForm.fields.map((field) => (
+                    <CustomFormFieldInput
+                      key={field.id}
+                      field={field}
+                      value={customFormData[field.id]}
+                      error={customFieldErrors[field.id]}
+                      onChange={(value) => handleCustomFieldChange(field.id, value)}
+                      primaryColor={primaryColor}
+                      borderRadius={borderRadius}
+                      isDark={isDark}
+                    />
+                  ))}
+                </>
+              )}
+
+              {/* Default Form Fields - only show if no custom form and done loading */}
+              {!effectiveForm && !isLoadingCustomization && !isLoadingEffectiveForm && (
+                <>
               {/* Name Field */}
               {showName && (
                 <div className="space-y-2">
@@ -596,6 +863,8 @@ export function SupportForm({
                     }}
                   />
                 </div>
+                </>
+              )}
 
               {/* Attachments */}
               {showAttachments && (
@@ -662,7 +931,7 @@ export function SupportForm({
               <button
                 type="submit"
                 className="w-full flex items-center justify-center gap-2 py-3 text-white font-medium transition-all hover:shadow-lg disabled:opacity-50"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoadingCustomization || isLoadingEffectiveForm}
                 style={{
                   backgroundColor: primaryColor,
                   borderRadius: `${Math.min(borderRadius, 8)}px`,
@@ -673,7 +942,7 @@ export function SupportForm({
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    {submitButtonText}
+                    {effectiveForm?.submitButtonText || submitButtonText}
                   </>
                 )}
               </button>
@@ -1027,6 +1296,171 @@ export function SupportForm({
           </div>
         )}
       </motion.div>
+    </div>
+  )
+}
+
+// ============================================================================
+// CustomFormFieldInput - Renders individual custom form fields
+// ============================================================================
+
+function CustomFormFieldInput({
+  field,
+  value,
+  error,
+  onChange,
+  primaryColor,
+  borderRadius,
+  isDark,
+}: {
+  field: ContactFormField
+  value: string | boolean | undefined
+  error?: string
+  onChange: (value: string | boolean) => void
+  primaryColor: string
+  borderRadius: number
+  isDark: boolean
+}): React.ReactElement {
+  const inputStyles = {
+    backgroundColor: isDark ? 'var(--appgram-card)' : 'white',
+    borderColor: error ? '#dc2626' : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'),
+    color: 'var(--appgram-foreground)',
+    borderRadius: `${Math.min(borderRadius, 8)}px`,
+  }
+
+  return (
+    <div className="space-y-2">
+      {field.type !== 'checkbox' && (
+        <label className="text-sm font-medium" style={{ color: 'var(--appgram-foreground)' }}>
+          {field.label}
+          {field.required && <span style={{ color: '#dc2626' }}> *</span>}
+        </label>
+      )}
+
+      {field.type === 'text' && (
+        <input
+          type="text"
+          value={String(value || '')}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          required={field.required}
+          className="w-full h-10 px-4 text-sm border focus:outline-none focus:ring-2 transition-all"
+          style={inputStyles}
+        />
+      )}
+
+      {field.type === 'email' && (
+        <input
+          type="email"
+          value={String(value || '')}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder || 'you@example.com'}
+          required={field.required}
+          className="w-full h-10 px-4 text-sm border focus:outline-none focus:ring-2 transition-all"
+          style={inputStyles}
+        />
+      )}
+
+      {field.type === 'textarea' && (
+        <textarea
+          value={String(value || '')}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          required={field.required}
+          rows={5}
+          className="w-full px-4 py-3 text-sm border focus:outline-none focus:ring-2 resize-none transition-all"
+          style={inputStyles}
+        />
+      )}
+
+      {field.type === 'select' && (
+        <select
+          value={String(value || '')}
+          onChange={(e) => onChange(e.target.value)}
+          required={field.required}
+          className="w-full h-10 px-4 text-sm border focus:outline-none focus:ring-2 transition-all appearance-none"
+          style={inputStyles}
+        >
+          <option value="">{field.placeholder || 'Select an option'}</option>
+          {(field.options || []).map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      )}
+
+      {field.type === 'radio' && (
+        <div className="space-y-2">
+          {(field.options || []).map((opt) => (
+            <label
+              key={opt}
+              className="flex items-center gap-3 px-4 py-3 text-sm border cursor-pointer transition-all"
+              style={{
+                backgroundColor: value === opt ? `${primaryColor}15` : 'transparent',
+                borderColor: value === opt ? primaryColor : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'),
+                color: 'var(--appgram-foreground)',
+                borderRadius: `${Math.min(borderRadius, 8)}px`,
+              }}
+            >
+              <input
+                type="radio"
+                name={field.id}
+                value={opt}
+                checked={value === opt}
+                onChange={() => onChange(opt)}
+                className="sr-only"
+              />
+              <div
+                className="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                style={{
+                  borderColor: value === opt ? primaryColor : (isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'),
+                }}
+              >
+                {value === opt && (
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: primaryColor }}
+                  />
+                )}
+              </div>
+              {opt}
+            </label>
+          ))}
+        </div>
+      )}
+
+      {field.type === 'checkbox' && (
+        <label
+          className="flex items-center gap-3 cursor-pointer"
+          style={{ color: 'var(--appgram-foreground)' }}
+        >
+          <div
+            className="w-4 h-4 border rounded flex items-center justify-center shrink-0 cursor-pointer"
+            style={{
+              borderColor: value ? primaryColor : (isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'),
+              backgroundColor: value ? primaryColor : 'transparent',
+            }}
+            onClick={() => onChange(!value)}
+          >
+            {value && (
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </div>
+          <span className="text-sm" onClick={() => onChange(!value)}>
+            {field.label}
+            {field.required && <span style={{ color: '#dc2626' }}> *</span>}
+          </span>
+        </label>
+      )}
+
+      {error && (
+        <p className="text-xs" style={{ color: '#dc2626' }}>
+          {error}
+        </p>
+      )}
     </div>
   )
 }
