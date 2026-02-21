@@ -584,13 +584,13 @@ export function ChatWidget({
                   </div>
                   <div className="flex-1">
                     <p
-                      className="text-sm font-medium"
+                      className="font-medium"
                       style={{ color: resolvedColors.foreground }}
                     >
                       {greeting}
                     </p>
                     <p
-                      className="text-sm mt-0.5"
+                      className="mt-0.5"
                       style={{ color: resolvedColors.mutedForeground }}
                     >
                       {subtitle}
@@ -610,7 +610,7 @@ export function ChatWidget({
                     <button
                       key={index}
                       onClick={() => handleOptionClick(option)}
-                      className="block w-full text-left text-sm px-4 py-2.5 rounded-xl transition-all duration-150 ease-out"
+                      className="block w-full text-left px-4 py-2.5 rounded-xl transition-all duration-150 ease-out"
                       style={{
                         backgroundColor: resolvedColors.inputBackground,
                         border: `1px solid ${resolvedColors.border}`,
@@ -645,7 +645,7 @@ export function ChatWidget({
                     <div className={cn("flex-1", message.sender === 'user' && "flex flex-col items-end")}>
                       {message.sender === 'user' ? (
                         <div
-                          className="rounded-2xl rounded-tr-md px-4 py-3 text-sm max-w-[85%] shadow-sm"
+                          className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%] shadow-sm"
                           style={{
                             backgroundColor: resolvedColors.userMessageBackground,
                             color: resolvedColors.userMessageText,
@@ -802,7 +802,7 @@ export function ChatWidget({
                 onKeyDown={handleKeyDown}
                 placeholder="Ask a question..."
                 disabled={isLoading}
-                className="flex-1 bg-transparent text-sm focus:outline-none py-2 disabled:opacity-50"
+                className="flex-1 bg-transparent focus:outline-none py-2 disabled:opacity-50"
                 style={{
                   color: resolvedColors.foreground,
                 }}
