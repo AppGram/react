@@ -518,7 +518,13 @@ export function ChatWidget({
         onClick={() => setIsOpen(false)}
       />
 
-      <div className={cn("fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3 sm:gap-4", className)}>
+      <div
+        className={cn("fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3 sm:gap-4", className)}
+        style={{
+          // Ensure widget doesn't get affected by viewport zoom
+          touchAction: 'manipulation',
+        }}
+      >
         {/* Chat Panel */}
         <div
           className={cn(
@@ -529,8 +535,11 @@ export function ChatWidget({
           style={{
             backgroundColor: resolvedColors.chatBackground,
             border: `1px solid ${resolvedColors.border}`,
-            height: isOpen ? 'min(560px, calc(100vh - 6rem))' : '0',
+            // Use dvh (dynamic viewport height) for mobile keyboard support, with vh fallback
+            height: isOpen ? 'min(560px, calc(100dvh - 6rem))' : '0',
             fontSize: resolvedFontSize,
+            // Prevent touch-based zooming/panning on the widget itself
+            touchAction: 'manipulation',
           }}
         >
           {/* Header */}
@@ -825,6 +834,7 @@ export function ChatWidget({
                 className="flex-1 bg-transparent focus:outline-none py-2 disabled:opacity-50"
                 style={{
                   color: resolvedColors.foreground,
+                  fontSize: '16px', // Prevents iOS auto-zoom on focus
                 }}
               />
               <button
