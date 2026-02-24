@@ -13,12 +13,14 @@ import {
   StatusIncidentDetail,
   ContactFormRenderer,
   Blog,
+  ChatWidget,
   useWishes,
   useVote,
   useContactForm,
   type Wish,
   type StatusData,
   type StatusIncident,
+  type ChatSource,
 } from '@appgram/react'
 
 // Configuration - Update these values to test with your Appgram project
@@ -26,6 +28,7 @@ const CONFIG = {
   projectId: '8be98cbb-308e-4aaa-8201-4fa17d5f2116', // Replace with your project ID
   orgSlug: 'acme-corp',           // Replace with your org slug
   projectSlug: 'my-app',   // Replace with your project slug
+  apiUrl: 'https://api.appgram.dev', // API URL for help center chat
   // apiUrl: 'http://localhost:3001', // Uncomment for local API testing
 }
 
@@ -697,6 +700,34 @@ export function App() {
             </p>
           </div>
         </footer>
+
+        {/* Chat Widget */}
+        <ChatWidget
+          projectId={CONFIG.projectId}
+          apiUrl={CONFIG.apiUrl}
+          agentName="Help Bot"
+          greeting="Hi there!"
+          subtitle="How can I help you today?"
+          accentColor="#0EA5E9"
+          options={[
+            { label: 'I need help getting started' },
+            { label: 'I have a billing question' },
+            { label: 'Report a bug' },
+          ]}
+          onArticleClick={(slug: string, source: ChatSource) => {
+            console.log('Article clicked:', slug, source)
+            // Example: navigate to help article
+            if (source.flow_slug) {
+              console.log(`Would navigate to: /help/${source.flow_slug}/${slug}`)
+            } else {
+              console.log(`Would navigate to: /help/articles/${slug}`)
+            }
+          }}
+          onSupportClick={() => {
+            console.log('Support clicked')
+            setActiveTab('support')
+          }}
+        />
       </div>
     </AppgramProvider>
   )

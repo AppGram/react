@@ -142,6 +142,8 @@ export interface ChatSource {
   similarity: number
   flow_slug?: string
   flow_id?: string
+  /** Source type - determines routing behavior */
+  type?: 'help_article' | 'blog_post'
 }
 
 interface ChatMessage {
@@ -357,10 +359,17 @@ export function ChatWidget({
   const [inputValue, setInputValue] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (chatContainerRef.current) {
+      // Use requestAnimationFrame for smoother scroll after content renders
+      requestAnimationFrame(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+        }
+      })
+    }
   }
 
   useEffect(() => {
@@ -528,18 +537,24 @@ export function ChatWidget({
         {/* Chat Panel */}
         <div
           className={cn(
-            "w-[calc(100vw-2rem)] sm:w-[380px] md:w-[400px] rounded-2xl shadow-2xl flex flex-col overflow-hidden",
+            "rounded-2xl shadow-2xl flex flex-col overflow-hidden",
             "transition-all duration-300 ease-out origin-bottom-right",
             isOpen ? "opacity-100 scale-100" : "h-0 opacity-0 scale-95 pointer-events-none"
           )}
           style={{
             backgroundColor: resolvedColors.chatBackground,
             border: `1px solid ${resolvedColors.border}`,
-            // Use dvh (dynamic viewport height) for mobile keyboard support, with vh fallback
+            // Fixed width on mobile, responsive on larger screens
+            width: 'min(calc(100vw - 2rem), 400px)',
+            maxWidth: '400px',
+            // Use dvh (dynamic viewport height) for mobile keyboard support
             height: isOpen ? 'min(560px, calc(100dvh - 6rem))' : '0',
             fontSize: resolvedFontSize,
             // Prevent touch-based zooming/panning on the widget itself
             touchAction: 'manipulation',
+            // Prevent content from causing overflow
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
           }}
         >
           {/* Header */}
@@ -591,8 +606,13 @@ export function ChatWidget({
 
           {/* Chat Area */}
           <div
-            className="flex-1 overflow-y-auto p-4 space-y-5"
-            style={{ backgroundColor: resolvedColors.chatBackground }}
+            ref={chatContainerRef}
+            className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-5"
+            style={{
+              backgroundColor: resolvedColors.chatBackground,
+              // Contain content to prevent horizontal overflow
+              overscrollBehavior: 'contain',
+            }}
           >
             {!showChat ? (
               <>
@@ -685,13 +705,99 @@ export function ChatWidget({
                       ) : (
                         <div className="max-w-[95%]">
                           <div
-                            className="prose prose-sm max-w-none"
+                            className="appgram-chat-markdown"
                             style={{
                               color: resolvedColors.foreground,
-                              '--tw-prose-links': accentColor,
-                            } as React.CSSProperties}
+                              fontSize: 'inherit',
+                              lineHeight: '1.6',
+                            }}
                           >
-                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                            <ReactMarkdown
+                              components={{
+                                p: ({ children }) => (
+                                  <p style={{ margin: '0 0 0.75em 0' }}>{children}</p>
+                                ),
+                                a: ({ href, children }) => (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: accentColor, textDecoration: 'underline' }}
+                                  >
+                                    {children}
+                                  </a>
+                                ),
+                                strong: ({ children }) => (
+                                  <strong style={{ fontWeight: 600 }}>{children}</strong>
+                                ),
+                                em: ({ children }) => (
+                                  <em style={{ fontStyle: 'italic' }}>{children}</em>
+                                ),
+                                ul: ({ children }) => (
+                                  <ul style={{ margin: '0.5em 0', paddingLeft: '1.25em', listStyleType: 'disc' }}>
+                                    {children}
+                                  </ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol style={{ margin: '0.5em 0', paddingLeft: '1.25em', listStyleType: 'decimal' }}>
+                                    {children}
+                                  </ol>
+                                ),
+                                li: ({ children }) => (
+                                  <li style={{ margin: '0.25em 0' }}>{children}</li>
+                                ),
+                                code: ({ children }) => (
+                                  <code
+                                    style={{
+                                      backgroundColor: resolvedColors.border,
+                                      padding: '0.125em 0.375em',
+                                      borderRadius: '4px',
+                                      fontSize: '0.875em',
+                                      fontFamily: 'monospace',
+                                    }}
+                                  >
+                                    {children}
+                                  </code>
+                                ),
+                                pre: ({ children }) => (
+                                  <pre
+                                    style={{
+                                      backgroundColor: resolvedColors.border,
+                                      padding: '0.75em',
+                                      borderRadius: '8px',
+                                      overflow: 'auto',
+                                      margin: '0.5em 0',
+                                      fontSize: '0.875em',
+                                    }}
+                                  >
+                                    {children}
+                                  </pre>
+                                ),
+                                blockquote: ({ children }) => (
+                                  <blockquote
+                                    style={{
+                                      borderLeft: `3px solid ${accentColor}`,
+                                      paddingLeft: '1em',
+                                      margin: '0.5em 0',
+                                      color: resolvedColors.mutedForeground,
+                                    }}
+                                  >
+                                    {children}
+                                  </blockquote>
+                                ),
+                                h1: ({ children }) => (
+                                  <h1 style={{ fontSize: '1.25em', fontWeight: 600, margin: '0.5em 0' }}>{children}</h1>
+                                ),
+                                h2: ({ children }) => (
+                                  <h2 style={{ fontSize: '1.125em', fontWeight: 600, margin: '0.5em 0' }}>{children}</h2>
+                                ),
+                                h3: ({ children }) => (
+                                  <h3 style={{ fontSize: '1em', fontWeight: 600, margin: '0.5em 0' }}>{children}</h3>
+                                ),
+                              }}
+                            >
+                              {message.content}
+                            </ReactMarkdown>
                           </div>
                           {message.sources && message.sources.length > 0 && (
                             <div
@@ -804,7 +910,6 @@ export function ChatWidget({
                     </div>
                   </div>
                 )}
-                <div ref={messagesEndRef} />
               </>
             )}
           </div>
