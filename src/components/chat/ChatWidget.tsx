@@ -607,11 +607,11 @@ export function ChatWidget({
           {/* Chat Area */}
           <div
             ref={chatContainerRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-5"
+            className="flex-1 overflow-y-auto overflow-x-hidden p-4 pr-5 space-y-5"
             style={{
               backgroundColor: resolvedColors.chatBackground,
-              // Contain content to prevent horizontal overflow
               overscrollBehavior: 'contain',
+              wordBreak: 'break-word',
             }}
           >
             {!showChat ? (
@@ -703,19 +703,22 @@ export function ChatWidget({
                           <p>{message.content}</p>
                         </div>
                       ) : (
-                        <div className="max-w-[95%]">
+                        <div className="max-w-[90%] pr-2">
                           <div
                             className="appgram-chat-markdown"
                             style={{
                               color: resolvedColors.foreground,
                               fontSize: 'inherit',
                               lineHeight: '1.6',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                              whiteSpace: 'pre-wrap',
                             }}
                           >
                             <ReactMarkdown
                               components={{
                                 p: ({ children }) => (
-                                  <p style={{ margin: '0 0 0.75em 0' }}>{children}</p>
+                                  <p style={{ margin: '0 0 0.75em 0', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{children}</p>
                                 ),
                                 a: ({ href, children }) => (
                                   <a
@@ -765,9 +768,13 @@ export function ChatWidget({
                                       backgroundColor: resolvedColors.border,
                                       padding: '0.75em',
                                       borderRadius: '8px',
-                                      overflow: 'auto',
+                                      overflowX: 'auto',
+                                      overflowY: 'hidden',
                                       margin: '0.5em 0',
                                       fontSize: '0.875em',
+                                      maxWidth: '100%',
+                                      whiteSpace: 'pre-wrap',
+                                      wordBreak: 'break-word',
                                     }}
                                   >
                                     {children}
