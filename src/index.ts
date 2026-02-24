@@ -42,6 +42,7 @@ export {
   useBlogPost,
   useBlogCategories,
   useFeaturedPosts,
+  useWaitlist,
   type UseWishesOptions,
   type UseWishesResult,
   type UseWishOptions,
@@ -87,6 +88,8 @@ export {
   type UseBlogCategoriesResult,
   type UseFeaturedPostsOptions,
   type UseFeaturedPostsResult,
+  type UseWaitlistOptions,
+  type UseWaitlistResult,
 } from './hooks'
 
 // Components
@@ -244,6 +247,11 @@ export type {
   BlogCategory,
   BlogPostsResponse,
   BlogFilters,
+  // Waitlist types
+  WaitlistJoinInput,
+  WaitlistCount,
+  WaitlistStatus,
+  WaitlistEntry,
   // API types
   ApiResponse,
   PaginatedResponse,

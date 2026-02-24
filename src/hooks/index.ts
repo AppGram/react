@@ -66,3 +66,4 @@ export {
   type UseFeaturedPostsOptions,
   type UseFeaturedPostsResult,
 } from './useBlog'
+export { useWaitlist, type UseWaitlistOptions, type UseWaitlistResult } from './useWaitlist'

@@ -14,6 +14,7 @@ export * from './survey'
 export * from './form'
 export * from './status'
 export * from './blog'
+export * from './waitlist'
 
 /**
  * API Response wrapper

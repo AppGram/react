@@ -33,6 +33,10 @@ import type {
   BlogPostsResponse,
   BlogCategory,
   BlogFilters,
+  WaitlistJoinInput,
+  WaitlistCount,
+  WaitlistStatus,
+  WaitlistEntry,
 } from '../types'
 
 export interface AppgramClientConfig {
@@ -1132,6 +1136,44 @@ export class AppgramClient {
   async getRelatedBlogPosts(slug: string): Promise<ApiResponse<BlogPost[]>> {
     return this.get<BlogPost[]>(`/portal/blog/posts/${slug}/related`, {
       project_id: this.projectId,
+    })
+  }
+
+  // ============================================================================
+  // Waitlist
+  // ============================================================================
+
+  /**
+   * Get the total count of users on the waitlist
+   */
+  async getWaitlistCount(): Promise<ApiResponse<WaitlistCount>> {
+    return this.get<WaitlistCount>(`/api/v1/projects/${this.projectId}/wishlist/count`)
+  }
+
+  /**
+   * Join the waitlist
+   */
+  async joinWaitlist(data: WaitlistJoinInput): Promise<ApiResponse<WaitlistEntry>> {
+    return this.post<WaitlistEntry>(`/api/v1/projects/${this.projectId}/wishlist/join`, data)
+  }
+
+  /**
+   * Leave the waitlist
+   */
+  async leaveWaitlist(email: string): Promise<ApiResponse<{ success: boolean }>> {
+    return this.request<{ success: boolean }>(
+      'DELETE',
+      `/api/v1/projects/${this.projectId}/wishlist/leave`,
+      { body: { email } }
+    )
+  }
+
+  /**
+   * Check if an email is on the waitlist
+   */
+  async checkWaitlistStatus(email: string): Promise<ApiResponse<WaitlistStatus>> {
+    return this.get<WaitlistStatus>(`/api/v1/projects/${this.projectId}/wishlist/status`, {
+      email,
     })
   }
 }
