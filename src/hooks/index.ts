@@ -39,10 +39,18 @@ export {
 export {
   useContactForm,
   useContactFormSubmit,
+  // Aliases for consistency with React Native SDK
+  useContactForm as useForm,
+  useContactFormSubmit as useFormSubmit,
   type UseContactFormOptions,
   type UseContactFormResult,
   type UseContactFormSubmitOptions,
   type UseContactFormSubmitResult,
+  // Type aliases for consistency with React Native SDK
+  type UseContactFormOptions as UseFormOptions,
+  type UseContactFormResult as UseFormResult,
+  type UseContactFormSubmitOptions as UseFormSubmitOptions,
+  type UseContactFormSubmitResult as UseFormSubmitResult,
 } from './useContactForm'
 export {
   useBlogPosts,

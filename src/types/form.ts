@@ -78,3 +78,42 @@ export interface ContactFormSubmitInput {
   data: Record<string, string | boolean>
   metadata?: Record<string, unknown>
 }
+
+// ============================================================================
+// Generic Form Aliases (for consistency with React Native SDK)
+// ============================================================================
+
+/**
+ * @alias ContactFormFieldType
+ */
+export type FormFieldType = ContactFormFieldType
+
+/**
+ * @alias ContactFormFieldValidation
+ */
+export type FormFieldValidation = ContactFormFieldValidation
+
+/**
+ * @alias ContactFormField
+ */
+export type FormField = ContactFormField
+
+/**
+ * @alias ContactFormIntegration
+ */
+export type FormIntegration = ContactFormIntegration
+
+/**
+ * @alias ContactForm
+ */
+export type Form = ContactForm
+
+/**
+ * @alias ContactFormSubmission
+ */
+export type FormSubmission = ContactFormSubmission
+
+/**
+ * @alias ContactFormSubmitInput
+ */
+export type FormSubmitInput = ContactFormSubmitInput

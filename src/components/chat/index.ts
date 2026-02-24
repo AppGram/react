@@ -2,4 +2,9 @@
  * Chat Component Exports
  */
 
-export { ChatWidget, type ChatWidgetProps, type ChatWidgetColors } from './ChatWidget'
+export {
+  ChatWidget,
+  type ChatWidgetProps,
+  type ChatWidgetColors,
+  type ChatSource,
+} from './ChatWidget'

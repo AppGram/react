@@ -135,11 +135,13 @@ interface ChatOption {
   onClick?: () => void
 }
 
-interface ChatSource {
+export interface ChatSource {
   article_id: string
   title: string
   slug: string
   similarity: number
+  flow_slug?: string
+  flow_id?: string
 }
 
 interface ChatMessage {
@@ -270,9 +272,25 @@ export interface ChatWidgetProps {
   logoUrl?: string
 
   /**
-   * Callback when an article source is clicked
+   * Callback when an article source is clicked.
+   * Provides the article slug and full source data for flexible routing.
+   *
+   * @example
+   * ```tsx
+   * // Simple slug-based routing
+   * onArticleClick={(slug) => router.push(`/help/articles/${slug}`)}
+   *
+   * // Using flow context for nested routes
+   * onArticleClick={(slug, source) => {
+   *   if (source.flow_slug) {
+   *     router.push(`/help/${source.flow_slug}/${slug}`)
+   *   } else {
+   *     router.push(`/help/articles/${slug}`)
+   *   }
+   * }}
+   * ```
    */
-  onArticleClick?: (slug: string) => void
+  onArticleClick?: (slug: string, source: ChatSource) => void
 
   /**
    * Callback when support button is clicked
@@ -482,8 +500,10 @@ export function ChatWidget({
   }
 
   const handleSourceClick = (source: ChatSource) => {
-    onArticleClick?.(source.slug)
-    setIsOpen(false)
+    if (onArticleClick) {
+      onArticleClick(source.slug, source)
+      setIsOpen(false)
+    }
   }
 
   return (
