@@ -675,7 +675,7 @@ export function ChatWidget({
               <>
                 {/* Message Thread */}
                 {messages.map((message) => (
-                  <div key={message.id} className={cn("flex gap-3", message.sender === 'user' && "flex-row-reverse")}>
+                  <div key={message.id} className={cn("flex gap-3 w-full", message.sender === 'user' && "flex-row-reverse")}>
                     {message.sender === 'agent' && (
                       <div
                         className="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center text-sm font-medium overflow-hidden"
@@ -691,7 +691,7 @@ export function ChatWidget({
                         )}
                       </div>
                     )}
-                    <div className={cn("flex-1", message.sender === 'user' && "flex flex-col items-end")}>
+                    <div className={cn("flex-1 min-w-0 overflow-hidden", message.sender === 'user' && "flex flex-col items-end")}>
                       {message.sender === 'user' ? (
                         <div
                           className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%] shadow-sm"
@@ -703,7 +703,7 @@ export function ChatWidget({
                           <p>{message.content}</p>
                         </div>
                       ) : (
-                        <div className="max-w-[90%] pr-2">
+                        <div style={{ maxWidth: 'calc(100% - 16px)', overflow: 'hidden' }}>
                           <div
                             className="appgram-chat-markdown"
                             style={{
@@ -809,7 +809,7 @@ export function ChatWidget({
                           {message.sources && message.sources.length > 0 && (
                             <div
                               className="mt-4 pt-3"
-                              style={{ borderTop: `1px solid ${resolvedColors.border}` }}
+                              style={{ borderTop: `1px solid ${resolvedColors.border}`, overflow: 'hidden', width: '100%' }}
                             >
                               <p
                                 className="text-xs mb-2"
@@ -817,16 +817,16 @@ export function ChatWidget({
                               >
                                 Related articles
                               </p>
-                              <div className="space-y-1.5">
+                              <div className="space-y-1.5 overflow-hidden">
                                 {message.sources.map((source) => (
                                   <button
                                     key={source.article_id}
                                     onClick={() => handleSourceClick(source)}
-                                    className="flex items-center gap-2 text-xs hover:underline transition-colors text-left group"
+                                    className="flex items-center gap-2 text-xs hover:underline transition-colors text-left group w-full min-w-0 max-w-full"
                                     style={{ color: accentColor }}
                                   >
                                     <FileTextIcon className="w-3.5 h-3.5 shrink-0 opacity-70 group-hover:opacity-100" />
-                                    <span className="truncate">{source.title}</span>
+                                    <span className="truncate min-w-0">{source.title}</span>
                                   </button>
                                 ))}
                               </div>
